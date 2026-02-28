@@ -1,0 +1,29 @@
+@import "tailwindcss";
+
+/* Minimal global base. Styling is intentionally moved to Tailwind classes in JSX. */
+
+:root {
+  color-scheme: light;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  padding: 0;
+  margin: 0;
+}
+
+body {
+  font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, "Noto Kufi Arabic", "Noto Sans Arabic", sans-serif;
+}
+
+::selection {
+  background: rgba(16, 185, 129, 0.18);
+}
+
+a {
+  color: inherit;
+}
