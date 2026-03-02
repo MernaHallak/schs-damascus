@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import Reveal from "../components/Reveal";
 import FeatureCard from "../components/FeatureCard";
-import { content } from "../lib/content";
+import { content, testsDetails } from "../lib/content";
 
 export const metadata: Metadata = {
   title: "الفحوصات",
@@ -12,7 +12,7 @@ export const metadata: Metadata = {
 export default function TestsPage() {
   const { tests, site } = content;
 
-  const cards = tests.cards ?? [];
+  // const cards = tests.cards ?? [];
   const cta = tests.cta ?? null;
 
   return (
@@ -41,9 +41,9 @@ export default function TestsPage() {
         </Reveal>
 
         <div className="mt-8 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-          {cards.map((c: any, idx: number) => (
+          {testsDetails.map((c: any, idx: number) => (
             <Reveal key={`${c.title}-${idx}`} delay={0.04 * idx}>
-              <FeatureCard title={c.title} text={c.text} image={c.image} />
+              <FeatureCard title={c.title} text={c.cardSubtitle} image={c.image} href={c.slug ? `/الفحوصات/${c.slug}` : undefined}/>
             </Reveal>
           ))}
         </div>

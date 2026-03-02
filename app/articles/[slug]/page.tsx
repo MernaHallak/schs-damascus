@@ -95,7 +95,7 @@ export default async function ArticlePage({
     (article.coverImageBase64 && article.coverImageBase64.trim()) ||
     "";
 
-  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://schs-sy.com";
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000";
   const canonical = `${siteUrl}/المقالات/${encodeURIComponent(slug)}`;
 
   const jsonLd = {

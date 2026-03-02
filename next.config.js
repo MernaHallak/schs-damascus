@@ -14,6 +14,7 @@ const nextConfig = {
 
       { source: "/الفحوصات", destination: "/tests" },
       { source: "/الفحوصات/:path*", destination: "/tests/:path*" },
+        
 
       { source: "/اتصل-بنا", destination: "/contact" },
       { source: "/اتصل-بنا/:path*", destination: "/contact/:path*" },

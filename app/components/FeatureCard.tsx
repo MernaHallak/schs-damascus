@@ -1,14 +1,15 @@
 import Image from "next/image";
+import Link from "next/link";
+import { testsDetails } from "../lib/content";
 
-export default function FeatureCard({
-  title,
-  text,
-  image,
-}: {
+type FeatureCardProps = {
   title: string;
   text: string;
   image: string;
-}) {
+  href?: string;
+};
+
+function CardBody({ title, text, image }: Omit<FeatureCardProps, "href">) {
   return (
     <div className="min-h-[425px] group overflow-hidden rounded-3xl border border-neutral-200 bg-white shadow-sm transition hover:shadow-md">
       <div className="relative aspect-[16/10] w-full overflow-hidden">
@@ -22,9 +23,25 @@ export default function FeatureCard({
         <div className="absolute inset-0 bg-gradient-to-t from-black/35 via-black/10 to-transparent" />
       </div>
       <div className="p-6">
-        <h3 className="text-base font-extrabold tracking-tight text-slate-900">{title}</h3>
+        <h3 className="text-base font-extrabold tracking-tight text-slate-900">
+          {title}
+        </h3>
         <p className="mt-2 text-sm leading-7 text-slate-600">{text}</p>
       </div>
     </div>
   );
+}
+
+export default function FeatureCard({
+  title,
+  text,
+  image,
+  href,
+}:FeatureCardProps ) {
+
+ const content = <CardBody title={title} text={text} image={image} />;
+
+  if (!href) return content;
+
+  return <Link href={href}>{content}</Link>;
 }
