@@ -3,7 +3,7 @@ import Link from "next/link";
 import type { Metadata } from "next";
 import Reveal from "./components/Reveal";
 import FeatureCard from "./components/FeatureCard";
-import { content } from "./lib/content";
+import { content, testsDetails } from "./lib/content";
 
 export const metadata: Metadata = {
   alternates: { canonical: "/" },
@@ -128,7 +128,7 @@ export default function HomePage() {
                 {tests.pageIntro}
               </p>
               <div className="mt-5 grid gap-3">
-                {tests.cards.map((t) => (
+                {testsDetails.map((t) => (
                   <div
                     key={t.title}
                     className="rounded-2xl border border-neutral-200 bg-neutral-50 px-4 py-3"
@@ -164,7 +164,7 @@ export default function HomePage() {
           <Reveal delay={0.1}>
             <div className="min-h-[220px] sm:min-h-[401px] sm:max-w-[460px] mx-auto relative overflow-hidden rounded-3xl border border-neutral-200 bg-white shadow-sm">
               <Image
-                src={tests.cards[0].image}
+                src={testsDetails[0].image}
                 alt="الفحوصات"
                 fill
                 sizes="(max-width: 1024px) 100vw, 50vw"
