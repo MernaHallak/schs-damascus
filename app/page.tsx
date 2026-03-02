@@ -137,7 +137,7 @@ export default function HomePage() {
                       {t.title}
                     </div>
                     <div className="mt-1 text-sm leading-7 text-slate-600">
-                      {t.text}
+                      {t.subtitle}
                     </div>
                   </div>
                 ))}
