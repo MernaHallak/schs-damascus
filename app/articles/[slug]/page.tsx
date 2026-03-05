@@ -129,9 +129,10 @@ export default async function ArticlePage({
       <div className="max-w-3xl">
         <Link
           href="/المقالات"
-          className="text-sm font-bold text-emerald-700 hover:underline"
-        >
-          ← العودة للمقالات
+          className="mb-5 inline-flex items-center gap-2 rounded-full border border-[#d6e8e0] bg-white px-4 py-2 text-sm text-[#145c49] shadow-sm transition hover:bg-[#f2faf6]"
+          >
+            <span aria-hidden>←</span>
+            <span>العودة إلى المقالات</span>
         </Link>
 
         <h1 className="mt-4 text-3xl sm:text-4xl font-black tracking-tight text-slate-900 leading-[1.15]">
