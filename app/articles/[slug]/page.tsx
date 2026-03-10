@@ -49,7 +49,6 @@ async function findPublishedArticleOrRedirect(slug: string) {
           title: true,
           excerpt: true,
           contentMarkdown: true,
-          coverImageUrl: true,
           coverImageBase64: true,
           publishedAt: true,
           updatedAt: true,
@@ -84,12 +83,12 @@ if (!resolved) return { title: "المقال غير موجود" };
 const article = resolved.article;
 const canonical = `${siteUrl}/المقالات/${encodeURIComponent(article.slug)}`;
 
-  const ogImage =
-    article.coverImageUrl && !article.coverImageUrl.startsWith("data:")
-      ? article.coverImageUrl.startsWith("/")
-        ? `${siteUrl}${article.coverImageUrl}`
-        : article.coverImageUrl
-      : undefined;
+  // const ogImage =
+  //   article.coverImageUrl && !article.coverImageUrl.startsWith("data:")
+  //     ? article.coverImageUrl.startsWith("/")
+  //       ? `${siteUrl}${article.coverImageUrl}`
+  //       : article.coverImageUrl
+  //     : undefined;
 
   return {
     title: article.title,
@@ -102,7 +101,7 @@ const canonical = `${siteUrl}/المقالات/${encodeURIComponent(article.slug
       type: "article",
       publishedTime: article.publishedAt?.toISOString(),
       modifiedTime: article.updatedAt?.toISOString(),
-      images: ogImage ? [{ url: ogImage }] : undefined,
+      // images: ogImage ? [{ url: ogImage }] : undefined,
     },
   };
 }
@@ -133,25 +132,14 @@ const cover = article.coverImageBase64?.trim() || "";
   const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000";
  const canonical = `${siteUrl}/المقالات/${encodeURIComponent(article.slug)}`;
 
-  const jsonLd = {
-    "@context": "https://schema.org",
-    "@type": "BlogPosting",
-    headline: article.title,
-    description: article.excerpt,
-    datePublished: article.publishedAt?.toISOString(),
-    mainEntityOfPage: canonical,
-   ...(article.coverImageUrl && !article.coverImageUrl.startsWith("data:")
-  ? {
-      image: {
-        "@type": "ImageObject",
-        url: article.coverImageUrl.startsWith("/")
-          ? `${siteUrl}${article.coverImageUrl}`
-          : article.coverImageUrl,
-        caption: article.coverImageAlt || article.title,
-      },
-    }
-  : {}),
-  };
+ const jsonLd = {
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  headline: article.title,
+  description: article.excerpt,
+  datePublished: article.publishedAt?.toISOString(),
+  mainEntityOfPage: canonical,
+};
 
   return (
     <div className="mx-auto w-full px-4 sm:px-6 lg:px-8 py-12 sm:py-14">
