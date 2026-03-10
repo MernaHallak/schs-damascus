@@ -6,7 +6,7 @@ export type ArticleCardData = {
   title: string;
   excerpt: string;
   publishedAt: Date | null;
-  coverImageUrl: string | null;
+  // coverImageUrl: string | null;
   coverImageAlt: string | null;
   coverImageBase64: string | null;
 };
@@ -17,7 +17,7 @@ function formatDate(d: Date | null) {
 }
 
 export default function ArticleCard({ a }: { a: ArticleCardData }) {
-  const cover = a.coverImageUrl || a.coverImageBase64 || "";
+  const cover = a.coverImageBase64 || "";
 
   return (
     <Link

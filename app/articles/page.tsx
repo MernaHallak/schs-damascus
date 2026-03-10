@@ -42,7 +42,6 @@ export default async function ArticlesPage({
       title: true,
       excerpt: true,
       publishedAt: true,
-      coverImageUrl: true,
       coverImageBase64: true,
       coverImageAlt: true,
     },

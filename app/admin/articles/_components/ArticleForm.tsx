@@ -1,19 +1,19 @@
 "use client";
 
 import Link from "next/link";
-import { useActionState, useMemo, useState } from "react";
-import { slugify } from "../../../lib/slug";
+// import { useActionState, useMemo, useState } from "react";
+// import { slugify } from "../../../lib/slug";
+import { useActionState } from "react";
 
 type State = { ok?: boolean; error?: string };
 
 type Initial = {
   id?: string;
   title?: string;
-  slug?: string;
+  
   excerpt?: string;
   contentMarkdown?: string;
   isPublished?: boolean;
-  coverImageUrl?: string;
   coverImageBase64?: string;
   coverImageAlt?: string;
 };
@@ -27,11 +27,11 @@ export default function ArticleForm({
   submitLabel: string;
   action: (prevState: State, formData: FormData) => Promise<State>;
 }) {
-  const [title, setTitle] = useState(initial.title ?? "");
-  const [slug, setSlug] = useState(initial.slug ?? "");
-  const [slugTouched, setSlugTouched] = useState(Boolean(initial.slug));
+  // const [title, setTitle] = useState(initial.title ?? "");
+  // const [slug, setSlug] = useState(initial.slug ?? "");
+  // const [slugTouched, setSlugTouched] = useState(Boolean(initial.slug));
 
-  const autoSlug = useMemo(() => slugify(title), [title]);
+  // const autoSlug = useMemo(() => slugify(title), [title]);
 
   // React 19: returns [state, formAction, pending]
   const [state, formAction, pending] = useActionState<State, FormData>(
@@ -47,6 +47,19 @@ export default function ArticleForm({
         <label className="text-sm font-bold text-slate-900">عنوان المقال</label>
         <input
           name="title"
+          defaultValue={initial.title ?? ""}
+          className="w-full rounded-2xl border border-neutral-200 bg-white px-4 py-3 text-sm outline-none focus:ring-2 focus:ring-emerald-500/30"
+          required
+        />
+        <p className="text-xs leading-6 text-slate-500">
+          سيتم توليد رابط المقال تلقائيًا من العنوان.
+        </p>
+      </div>
+
+      {/* <div className="grid gap-2">
+        <label className="text-sm font-bold text-slate-900">عنوان المقال</label>
+        <input
+          name="title"
           value={title}
           onChange={(e) => {
             const v = e.target.value;
@@ -56,9 +69,9 @@ export default function ArticleForm({
           className="w-full rounded-2xl border border-neutral-200 bg-white px-4 py-3 text-sm outline-none focus:ring-2 focus:ring-emerald-500/30"
           required
         />
-      </div>
+      </div> */}
 
-      <div className="grid gap-2">
+      {/* <div className="grid gap-2">
         <label className="text-sm font-bold text-slate-900">
           Slug (الرابط)
         </label>
@@ -75,7 +88,7 @@ export default function ArticleForm({
         <p className="text-xs leading-6 text-slate-500">
           إذا تركته فاضي، رح يتولد تلقائيًا من العنوان.
         </p>
-      </div>
+      </div> */}
 
       <div className="grid gap-2">
         <label className="text-sm font-bold text-slate-900">مقتطف</label>
@@ -114,7 +127,7 @@ export default function ArticleForm({
         </p> */}
       </div>
 
-      <div className="grid gap-2">
+      {/* <div className="grid gap-2">
         <label className="text-sm font-bold text-slate-900">
           صورة الغلاف (رابط URL)
         </label>
@@ -155,11 +168,11 @@ export default function ArticleForm({
             والوصولية).
           </p>
         </div>
-      </div>
+      </div> */}
 
       <div className="grid gap-2">
         <label className="text-sm font-bold text-slate-900">
-          رفع غلاف (ملف) — اختياري
+         رفع غلاف صورة للمقال
         </label>
         <input
           name="coverFile"
@@ -169,8 +182,7 @@ export default function ArticleForm({
         />
 
         <p className="text-xs text-slate-500">
-          الحد الأعلى للرفع: 8MB. سيتم تحويل الغلاف تلقائيًا إلى WEBP مضغوط
-          للأداء.
+          الحد الأعلى للرفع: 8MB.
         </p>
         <div className="grid gap-2">
           <label className="text-sm font-bold text-slate-900">

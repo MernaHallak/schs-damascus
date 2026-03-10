@@ -4,7 +4,7 @@ import { prisma } from "./lib/prisma";
 export const dynamic = "force-dynamic";
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://schs-sy.com";
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://schs-damascus.vercel.app/";
 
   const base: MetadataRoute.Sitemap = [
     { url: `${siteUrl}/`, lastModified: new Date() },

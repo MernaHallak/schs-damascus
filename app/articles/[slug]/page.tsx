@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { notFound } from "next/navigation";
+import { notFound, permanentRedirect } from "next/navigation";
 import Link from "next/link";
 import { prisma } from "../../lib/prisma";
 import SmartImage from "../../components/SmartImage";
@@ -19,6 +19,56 @@ const safeDecode = (s: string) => {
     return s;
   }
 };
+
+async function findPublishedArticleOrRedirect(slug: string) {
+  const article = await prisma.article.findFirst({
+    where: { slug, isPublished: true },
+    select: {
+      slug: true,
+      title: true,
+      excerpt: true,
+      contentMarkdown: true,
+     
+      coverImageBase64: true,
+      publishedAt: true,
+      updatedAt: true,
+      coverImageAlt: true,
+    },
+  });
+
+  if (article) {
+    return { article, redirectedFrom: null as string | null };
+  }
+
+  const redirectEntry = await prisma.articleSlugRedirect.findUnique({
+    where: { fromSlug: slug },
+    select: {
+      article: {
+        select: {
+          slug: true,
+          title: true,
+          excerpt: true,
+          contentMarkdown: true,
+          coverImageUrl: true,
+          coverImageBase64: true,
+          publishedAt: true,
+          updatedAt: true,
+          coverImageAlt: true,
+          isPublished: true,
+        },
+      },
+    },
+  });
+
+  if (redirectEntry?.article?.isPublished) {
+    const { isPublished, ...redirectedArticle } = redirectEntry.article;
+    return { article: redirectedArticle, redirectedFrom: slug };
+  }
+
+  return null;
+}
+
+
 export async function generateMetadata({
   params,
 }: {
@@ -28,21 +78,11 @@ export async function generateMetadata({
   const slug = safeDecode(rawSlug);
   const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://schs-sy.com";
 
-  const article = await prisma.article.findFirst({
-    where: { slug, isPublished: true },
-    select: {
-      title: true,
-      excerpt: true,
-      coverImageUrl: true,
-      publishedAt: true,
-      updatedAt: true,
-      coverImageAlt: true,
-    },
-  });
+  const resolved = await findPublishedArticleOrRedirect(slug);
+if (!resolved) return { title: "المقال غير موجود" };
 
-  if (!article) return { title: "المقال غير موجود" };
-
-  const canonical = `${siteUrl}/المقالات/${encodeURIComponent(slug)}`;
+const article = resolved.article;
+const canonical = `${siteUrl}/المقالات/${encodeURIComponent(article.slug)}`;
 
   const ogImage =
     article.coverImageUrl && !article.coverImageUrl.startsWith("data:")
@@ -75,28 +115,23 @@ export default async function ArticlePage({
   const { slug: rawSlug } = await params;
   const slug = safeDecode(rawSlug);
 
-  const article = await prisma.article.findFirst({
-    where: { slug, isPublished: true },
-    select: {
-      title: true,
-      excerpt: true,
-      contentMarkdown: true,
-      coverImageUrl: true,
-      coverImageBase64: true,
-      publishedAt: true,
-      coverImageAlt: true,
-    },
-  });
+ const resolved = await findPublishedArticleOrRedirect(slug);
+if (!resolved) notFound();
 
-  if (!article) notFound();
+if (resolved.redirectedFrom) {
+  permanentRedirect(`/المقالات/${encodeURIComponent(resolved.article.slug)}`);
+}
 
-  const cover =
-    (article.coverImageUrl && article.coverImageUrl.trim()) ||
-    (article.coverImageBase64 && article.coverImageBase64.trim()) ||
-    "";
+const article = resolved.article;
+
+  // const cover =
+  //   (article.coverImageUrl && article.coverImageUrl.trim()) ||
+  //   (article.coverImageBase64 && article.coverImageBase64.trim()) ||
+  //   "";
+const cover = article.coverImageBase64?.trim() || "";
 
   const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000";
-  const canonical = `${siteUrl}/المقالات/${encodeURIComponent(slug)}`;
+ const canonical = `${siteUrl}/المقالات/${encodeURIComponent(article.slug)}`;
 
   const jsonLd = {
     "@context": "https://schema.org",
