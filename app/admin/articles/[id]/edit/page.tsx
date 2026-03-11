@@ -28,12 +28,11 @@ export default async function EditArticlePage({
   initial={{
     id: article.id,
     title: article.title,
-   
     excerpt: article.excerpt,
     contentMarkdown: article.contentMarkdown,
     isPublished: article.isPublished,
-    // coverImageUrl: article.coverImageUrl ?? "",
     coverImageBase64: article.coverImageBase64 ?? "",
+    coverImageAlt: article.coverImageAlt ?? "",
   }}
 />
     </div>

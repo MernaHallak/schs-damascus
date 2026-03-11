@@ -5,11 +5,12 @@ import { testsDetails } from "../lib/content";
 type FeatureCardProps = {
   title: string;
   text: string;
+  subText?:string;
   image: string;
   href?: string;
 };
 
-function CardBody({ title, text, image }: Omit<FeatureCardProps, "href">) {
+function CardBody({ title, text, image ,subText }: Omit<FeatureCardProps, "href">) {
   return (
     <div className="min-h-[425px] group overflow-hidden rounded-3xl border border-neutral-200 bg-white shadow-sm transition hover:shadow-md">
       <div className="relative aspect-[16/10] w-full overflow-hidden">
@@ -26,7 +27,7 @@ function CardBody({ title, text, image }: Omit<FeatureCardProps, "href">) {
         <h3 className="text-base font-extrabold tracking-tight text-slate-900">
           {title}
         </h3>
-        <p className="mt-2 text-sm leading-7 text-slate-600">{text}</p>
+        <p className="mt-2 text-sm leading-7 text-slate-600">{subText}</p>
       </div>
     </div>
   );
@@ -35,11 +36,12 @@ function CardBody({ title, text, image }: Omit<FeatureCardProps, "href">) {
 export default function FeatureCard({
   title,
   text,
+  subText,
   image,
   href,
 }:FeatureCardProps ) {
 
- const content = <CardBody title={title} text={text} image={image} />;
+ const content = <CardBody title={title} text={text} image={image} subText={subText} />;
 
   if (!href) return content;
 

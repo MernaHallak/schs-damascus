@@ -74,7 +74,7 @@ export default function HomePage() {
 
             <Reveal delay={0.2}>
               <div className="mt-8 grid gap-3 sm:grid-cols-2">
-                {home.servicesQuickList.slice(0, 4).map((t) => (
+                {home.servicesQuickList.slice(0, 5).map((t) => (
                   <div
                     key={t}
                     className="rounded-2xl border border-neutral-200 bg-white/70 px-4 py-3 text-sm text-slate-700 shadow-sm"
@@ -111,7 +111,7 @@ export default function HomePage() {
         <div className="mt-8 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
           {services.cards.map((c, idx) => (
             <Reveal key={c.title} delay={0.05 * idx}>
-              <FeatureCard title={c.title} text={c.text} image={c.image} />
+              <FeatureCard title={c.title} text={c.text} image={c.image} subText={c.subText} />
             </Reveal>
           ))}
         </div>

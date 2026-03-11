@@ -1,8 +1,10 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
- serverActions: {
-  bodySizeLimit: "8mb",
-},
+  experimental: {
+    serverActions: {
+      bodySizeLimit: "6mb",
+    },
+  },
 
   // مسارات عربية للزوار (أفضل للـ SEO + تجربة عربية موحّدة)
   // - نعرض للزائر الروابط العربية

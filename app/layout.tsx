@@ -47,11 +47,11 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="ar" dir="rtl" className="scroll-smooth">
-      <body className="min-h-screen bg-white text-slate-900 antialiased">
+      <body className="min-h-screen flex flex-col bg-white text-slate-900 antialiased">
         <Navbar />
-            <div className="relative">
+            <div className="relative">  
           <div className="pointer-events-none absolute inset-0 bg-gradient-to-b from-emerald-50 h-32" />
-          <main className="relative z-10">{children}</main>
+          <main className="relative z-10 flex-1">{children}</main>
         </div>
         <Footer />
         <WhatsAppButton />

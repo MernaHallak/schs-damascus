@@ -1,16 +1,13 @@
 "use client";
-
 import Link from "next/link";
-// import { useActionState, useMemo, useState } from "react";
-// import { slugify } from "../../../lib/slug";
-import { useActionState } from "react";
+import { useActionState, useState } from "react";
 
 type State = { ok?: boolean; error?: string };
 
 type Initial = {
   id?: string;
   title?: string;
-  
+
   excerpt?: string;
   contentMarkdown?: string;
   isPublished?: boolean;
@@ -27,17 +24,11 @@ export default function ArticleForm({
   submitLabel: string;
   action: (prevState: State, formData: FormData) => Promise<State>;
 }) {
-  // const [title, setTitle] = useState(initial.title ?? "");
-  // const [slug, setSlug] = useState(initial.slug ?? "");
-  // const [slugTouched, setSlugTouched] = useState(Boolean(initial.slug));
-
-  // const autoSlug = useMemo(() => slugify(title), [title]);
-
-  // React 19: returns [state, formAction, pending]
   const [state, formAction, pending] = useActionState<State, FormData>(
     action,
     {},
   );
+  const [selectedCoverName, setSelectedCoverName] = useState("");
 
   return (
     <form action={formAction} className="grid gap-5">
@@ -55,40 +46,6 @@ export default function ArticleForm({
           سيتم توليد رابط المقال تلقائيًا من العنوان.
         </p>
       </div>
-
-      {/* <div className="grid gap-2">
-        <label className="text-sm font-bold text-slate-900">عنوان المقال</label>
-        <input
-          name="title"
-          value={title}
-          onChange={(e) => {
-            const v = e.target.value;
-            setTitle(v);
-            if (!slugTouched) setSlug(slugify(v));
-          }}
-          className="w-full rounded-2xl border border-neutral-200 bg-white px-4 py-3 text-sm outline-none focus:ring-2 focus:ring-emerald-500/30"
-          required
-        />
-      </div> */}
-
-      {/* <div className="grid gap-2">
-        <label className="text-sm font-bold text-slate-900">
-          Slug (الرابط)
-        </label>
-        <input
-          name="slug"
-          value={slugTouched ? slug : autoSlug}
-          onChange={(e) => {
-            setSlugTouched(true);
-            setSlug(e.target.value);
-          }}
-          className="w-full rounded-2xl border border-neutral-200 bg-white px-4 py-3 text-sm outline-none focus:ring-2 focus:ring-emerald-500/30"
-          placeholder={autoSlug || "مثال: نص-المقال"}
-        />
-        <p className="text-xs leading-6 text-slate-500">
-          إذا تركته فاضي، رح يتولد تلقائيًا من العنوان.
-        </p>
-      </div> */}
 
       <div className="grid gap-2">
         <label className="text-sm font-bold text-slate-900">مقتطف</label>
@@ -120,79 +77,61 @@ export default function ArticleForm({
              whitespace-pre-wrap break-words [overflow-wrap:anywhere]"
           required
         />
-        {/* <p className="text-xs leading-6 text-slate-500">
-          Markdown فقط (بدون HTML خام). مثال:{" "}
-          <code className="rounded bg-neutral-100 px-1">## عنوان</code> أو{" "}
-          <code className="rounded bg-neutral-100 px-1">- نقطة</code>.
-        </p> */}
       </div>
 
-      {/* <div className="grid gap-2">
+      <div className="grid gap-2 ">
         <label className="text-sm font-bold text-slate-900">
-          صورة الغلاف (رابط URL)
+          رفع غلاف صورة للمقال
         </label>
         <input
-          name="coverImageUrl"
-          defaultValue={initial.coverImageUrl ?? ""}
-          className="w-full rounded-2xl border border-neutral-200 bg-white px-4 py-3 text-sm outline-none focus:ring-2 focus:ring-emerald-500/30"
-          placeholder="https://..."
-        />
-
-        <p className="text-xs leading-6 text-slate-500">
-          الأفضل للسرعة.
-          <span className="block">
-            ملاحظة: رابط
-            <code className="mx-1 rounded bg-neutral-100 px-1">
-              google.com/search
-            </code>
-            مو رابط صورة، لازم رابط صورة مباشر (Open image in new tab).
-          </span>
-          <span className="block">
-            إذا بدك ترفع ملف: استخدم الحقل التالي (رح ننزّله تلقائيًا لصورة
-            "WEBP" مضغوطة للأداء). إذا بدك تلصق Base64 يدويًا لازم يكون صغير
-            (حوالي ≤ 400KB).
-          </span>
-        </p>
-        <div className="grid gap-2">
-          <label className="text-sm font-bold text-slate-900">
-            نص بديل لصورة الغلاف (alt) — اختياري
-          </label>
-          <input
-            name="coverImageAlt"
-            defaultValue={initial.coverImageAlt ?? ""}
-            className="w-full rounded-2xl border border-neutral-200 bg-white px-4 py-3 text-sm outline-none focus:ring-2 focus:ring-emerald-500/30"
-            placeholder="مثال: أخصائي يجري فحص سمع لطفل داخل العيادة"
-          />
-          <p className="text-xs leading-6 text-slate-500">
-            اكتب وصفًا قصيرًا ودقيقًا للصورة حسب سياق المقال (يفيد SEO
-            والوصولية).
-          </p>
-        </div>
-      </div> */}
-
-      <div className="grid gap-2">
-        <label className="text-sm font-bold text-slate-900">
-         رفع غلاف صورة للمقال
-        </label>
-        <input
-          name="coverFile"
+          id="coverFile"
           type="file"
+          name="coverFile"
           accept="image/png,image/jpeg,image/webp"
-          className="w-full rounded-2xl border border-neutral-200 bg-white px-4 py-3 text-sm"
+          required={!initial.coverImageBase64}
+          className="sr-only"
+          onChange={(e) => {
+            setSelectedCoverName(e.target.files?.[0]?.name || "");
+          }}
         />
 
-        <p className="text-xs text-slate-500">
-          الحد الأعلى للرفع: 8MB.
-        </p>
+        {/* <label
+          htmlFor="coverFile"
+          className="flex items-center gap-3 rounded-2xl border border-neutral-200 bg-white px-4 py-3 cursor-pointer transition hover:border-emerald-400"
+        > */}
+        <label
+          htmlFor="coverFile"
+          className="flex items-center gap-3 rounded-2xl border border-neutral-200 bg-white px-4 py-3 cursor-pointer transition focus-within:ring-2 focus-within:ring-emerald-500/30 focus-within:border-emerald-500"
+        >
+          <span className="shrink-0 rounded-xl bg-emerald-600 px-4 py-2 text-sm font-bold text-white">
+            اختيار صورة
+          </span>
+
+          <div className="min-w-0 flex-1 text-right">
+            <p className="truncate text-sm text-slate-700">
+              {selectedCoverName ||
+                (initial.coverImageBase64
+                  ? "توجد صورة غلاف محفوظة حاليًا، يمكنك استبدالها"
+                  : "لم يتم اختيار صورة بعد")}
+            </p>
+          </div>
+        </label>
+
+        <div className="text-xs leading-6 text-slate-500">
+          <p>الصيغ المدعومة: PNG / JPEG / WEBP</p>
+          <p>الحد الأعلى للرفع: 5MB.</p>
+        </div>
+
         <div className="grid gap-2">
           <label className="text-sm font-bold text-slate-900">
-            نص بديل لصورة الغلاف (alt) — اختياري
+            نص بديل لصورة الغلاف (alt)
           </label>
           <input
             name="coverImageAlt"
             defaultValue={initial.coverImageAlt ?? ""}
             className="w-full rounded-2xl border border-neutral-200 bg-white px-4 py-3 text-sm outline-none focus:ring-2 focus:ring-emerald-500/30"
             placeholder="مثال: أخصائي يجري فحص سمع لطفل داخل العيادة"
+            required
           />
           <p className="text-xs leading-6 text-slate-500">
             اكتب وصفًا قصيرًا ودقيقًا للصورة حسب سياق المقال (يفيد SEO

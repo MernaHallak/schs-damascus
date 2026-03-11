@@ -35,7 +35,7 @@ export default function ServicesPage() {
       </section>
 
       {/* Highlights (like demo: خدمات السمع والنطق) */}
-      <section className="mx-auto w-full px-4 sm:px-6 lg:px-8 pb-12 sm:pb-14">
+      {/* <section className="mx-auto w-full px-4 sm:px-6 lg:px-8 pb-12 sm:pb-14">
         <Reveal>
           <h2 className="text-xl sm:text-2xl font-extrabold tracking-tight text-slate-900">
             {services.highlightsTitle ?? "خدمات السمع والنطق"}
@@ -49,7 +49,7 @@ export default function ServicesPage() {
             </Reveal>
           ))}
         </div>
-      </section>
+      </section> */}
 
       {/* Specialties (like demo: خدمات طبية متخصصة) */}
       <section className="mx-auto w-full px-4 sm:px-6 lg:px-8 pb-12 sm:pb-14">
@@ -72,7 +72,7 @@ export default function ServicesPage() {
                       <h3 className="text-xl sm:text-2xl font-extrabold tracking-tight text-slate-900">
                         {s.title}
                       </h3>
-                      <p className="mt-3 text-sm sm:text-base leading-8 text-slate-600">
+                      <p className="mt-3 text-sm sm:text-base leading-8 text-slate-600 whitespace-pre-line">
                         {s.text}
                       </p>
 
