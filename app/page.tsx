@@ -111,7 +111,12 @@ export default function HomePage() {
         <div className="mt-8 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
           {services.cards.map((c, idx) => (
             <Reveal key={c.title} delay={0.05 * idx}>
-              <FeatureCard title={c.title} text={c.text} image={c.image} subText={c.subText} />
+              <FeatureCard
+                title={c.title}
+                text={c.text}
+                image={c.image}
+                subText={c.subText}
+              />
             </Reveal>
           ))}
         </div>
@@ -162,13 +167,23 @@ export default function HomePage() {
           </Reveal>
 
           <Reveal delay={0.1}>
-            <div className="min-h-[220px] sm:min-h-[401px] sm:max-w-[460px] mx-auto relative overflow-hidden rounded-3xl border border-neutral-200 bg-white shadow-sm">
+            {/* <div className="min-h-[220px] sm:min-h-[401px] sm:max-w-[460px] mx-auto relative overflow-hidden rounded-3xl border border-neutral-200 bg-white shadow-sm">
               <Image
-                src={testsDetails[0].image}
+                src="/assets/services/اختبارات السمع الشاملة.jpg"
                 alt="الفحوصات"
                 fill
                 sizes="(max-width: 1024px) 100vw, 50vw"
                 className="object-cover "
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/55 via-black/15 to-transparent" />
+            </div> */}
+            <div className="relative mx-auto w-full h-64 overflow-hidden rounded-3xl border border-neutral-200 bg-white shadow-sm sm:h-80 sm:max-w-[520px] lg:h-[460px] lg:max-w-[620px]">
+              <Image
+                src="/assets/services/اختبارات السمع الشاملة.jpg"
+                alt="الفحوصات"
+                fill
+                sizes="(max-width: 1024px) 100vw, 50vw"
+                className="object-cover"
               />
               <div className="absolute inset-0 bg-gradient-to-t from-black/55 via-black/15 to-transparent" />
             </div>
@@ -199,15 +214,15 @@ export default function HomePage() {
             <div className="mt-6 flex flex-wrap gap-3">
               {home.specialists.map((s, idx) => (
                 <Reveal key={s.wa} delay={0.03 * idx}>
-                <a
-                  href={`https://wa.me/${s.wa}?text=${encodeURIComponent("مرحباً، أريد حجز موعد.")}`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  aria-label={`فتح واتساب: ${s.name}`}
-                  className="inline-flex items-center rounded-full bg-emerald-100 px-4 py-2 text-sm font-bold text-emerald-900 transition hover:bg-emerald-200 focus:outline-none focus:ring-2 focus:ring-emerald-500/30"
-                >
-                  {s.name}
-                </a>
+                  <a
+                    href={`https://wa.me/${s.wa}?text=${encodeURIComponent("مرحباً، أريد حجز موعد.")}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    aria-label={`فتح واتساب: ${s.name}`}
+                    className="inline-flex items-center rounded-full bg-emerald-100 px-4 py-2 text-sm font-bold text-emerald-900 transition hover:bg-emerald-200 focus:outline-none focus:ring-2 focus:ring-emerald-500/30"
+                  >
+                    {s.name}
+                  </a>
                 </Reveal>
               ))}
             </div>

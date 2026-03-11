@@ -5,6 +5,7 @@ import Link from "next/link";
 import Reveal from "../components/Reveal";
 import FeatureCard from "../components/FeatureCard";
 import { content } from "../lib/content";
+import ExpandableText from "../components/ExpandableText";
 
 export const metadata: Metadata = {
   title: "الخدمات",
@@ -72,10 +73,10 @@ export default function ServicesPage() {
                       <h3 className="text-xl sm:text-2xl font-extrabold tracking-tight text-slate-900">
                         {s.title}
                       </h3>
-                      <p className="mt-3 text-sm sm:text-base leading-8 text-slate-600 whitespace-pre-line">
+                      {/* <p className="mt-3 text-sm sm:text-base leading-8 text-slate-600 whitespace-pre-line">
                         {s.text}
-                      </p>
-
+                      </p> */}
+<ExpandableText text={s.text} lines={6} />
                      
                     </div>
 

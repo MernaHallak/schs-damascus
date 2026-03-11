@@ -27,7 +27,7 @@ function CardBody({ title, text, image ,subText }: Omit<FeatureCardProps, "href"
         <h3 className="text-base font-extrabold tracking-tight text-slate-900">
           {title}
         </h3>
-        <p className="mt-2 text-sm leading-7 text-slate-600">{subText}</p>
+        <p className="mt-2 text-sm leading-7 text-slate-600">{subText || text}</p>
       </div>
     </div>
   );
