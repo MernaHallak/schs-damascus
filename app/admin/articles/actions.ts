@@ -52,7 +52,20 @@ const baseSchema = z.object({
   isPublished: z.union([z.literal("on"), z.undefined()]),
 });
 
-type State = { error?: string };
+// type State = { error?: string };
+
+type FormValues = {
+  title: string;
+  excerpt: string;
+  contentMarkdown: string;
+  coverImageAlt: string;
+  isPublished: boolean;
+};
+
+type State = {
+  error?: string;
+  values?: FormValues;
+};
 
 function isImageMime(mime: string) {
   return ["image/png", "image/jpeg", "image/webp"].includes(mime);
@@ -100,8 +113,19 @@ async function fileToOptimizedDataUrl(
   }
 }
 
+function getFormValues(formData: FormData): FormValues {
+  return {
+    title: String(formData.get("title") || ""),
+    excerpt: String(formData.get("excerpt") || ""),
+    contentMarkdown: String(formData.get("contentMarkdown") || ""),
+    coverImageAlt: String(formData.get("coverImageAlt") || ""),
+    isPublished: formData.get("isPublished") === "on",
+  };
+}
+
 export async function createArticleAction(_: State, formData: FormData) {
   await ensureAdmin();
+  const values = getFormValues(formData);
 
   const parsed = baseSchema.safeParse({
     title: formData.get("title"),
@@ -112,7 +136,10 @@ export async function createArticleAction(_: State, formData: FormData) {
   });
 
   if (!parsed.success) {
-    return { error: parsed.error.issues[0]?.message || "بيانات غير صحيحة." };
+    return {
+    error: parsed.error.issues[0]?.message || "بيانات غير صحيحة.",
+    values,
+  };
   }
 
   const title = parsed.data.title.trim();
@@ -129,13 +156,15 @@ export async function createArticleAction(_: State, formData: FormData) {
   ) {
     return {
       error:
-        "لصورة الغلاف استخدم رفع ملف من جهازك، وللصور داخل النص استخدم رابط صورة مباشر.",
+        "لصورة الغلاف استخدم رفع ملف من جهازك، وللصور داخل النص استخدم رابط صورة مباشر."
+        , values,
     };
   }
 
   if (!slug) {
     return {
-      error: "تعذر توليد الرابط من العنوان. عدّلي العنوان.",
+      error: "تعذر توليد الرابط من العنوان. عدّلي العنوان."
+      , values,
     };
   }
 
@@ -146,32 +175,34 @@ let coverImageBase64: string | null = null;
   const coverFile = formData.get("coverFile");
   if (coverFile && coverFile instanceof File && coverFile.size > 0) {
     if (!isImageMime(coverFile.type)) {
-      return { error: "صيغة صورة الغلاف غير مدعومة (PNG/JPEG/WEBP فقط)." };
+      return { error: "صيغة صورة الغلاف غير مدعومة (PNG/JPEG/WEBP فقط)."
+        , values, };
     }
 
     const maxUploadBytes = 5 * 1024 * 1024;
     if (coverFile.size > maxUploadBytes) {
-      return { error: "حجم ملف الغلاف كبير جدًا. الحد الأعلى 5MB." };
+      return { error: "حجم ملف الغلاف كبير جدًا. الحد الأعلى 5MB."
+        , values, };
     }
 
     const optimized = await fileToOptimizedDataUrl(coverFile);
     if (optimized.error || !optimized.dataUrl) {
-      return { error: optimized.error || "فشل حفظ صورة الغلاف." };
+      return { error: optimized.error || "فشل حفظ صورة الغلاف." 
+        , values, };
     }
 
     coverImageBase64 = optimized.dataUrl;
   }
 
   if (!coverImageBase64) {
-  return { error: "صورة الغلاف مطلوبة." };
+  return { error: "صورة الغلاف مطلوبة."
+    , values, };
 }
 
   const now = new Date();
   const publishedAt = isPublished ? now : null;
 
-  if (!coverImageBase64) {
-    return { error: "صورة الغلاف مطلوبة." };
-  }
+  
 
   await prisma.article.create({
     data: {
@@ -198,7 +229,10 @@ export async function updateArticleAction(_: State, formData: FormData) {
   await ensureAdmin();
 
   const id = String(formData.get("id") || "").trim();
-  if (!id) return { error: "المعرّف غير صحيح." };
+  const values = getFormValues(formData);
+  if (!id) return { error: "المعرّف غير صحيح."
+     ,values,
+   };
 
   const parsed = baseSchema.safeParse({
     title: formData.get("title"),
@@ -209,7 +243,9 @@ export async function updateArticleAction(_: State, formData: FormData) {
   });
 
   if (!parsed.success) {
-    return { error: parsed.error.issues[0]?.message || "بيانات غير صحيحة." };
+    return { error: parsed.error.issues[0]?.message || "بيانات غير صحيحة."
+      ,values,
+     };
   }
 
   const title = parsed.data.title.trim();
@@ -225,13 +261,15 @@ export async function updateArticleAction(_: State, formData: FormData) {
   ) {
     return {
       error:
-        " لصورة الغلاف استخدم رفع ملف من جهازك، وللصور داخل النص استخدم رابط صورة مباشر.",
+        " لصورة الغلاف استخدم رفع ملف من جهازك، وللصور داخل النص استخدم رابط صورة مباشر."
+        ,values,
     };
   }
 
   if (!desiredSlug) {
     return {
-      error: "تعذر توليد الرابط من العنوان. عدّلي العنوان.",
+      error: "تعذر توليد الرابط من العنوان. عدّلي العنوان."
+      ,values,
     };
   }
 
@@ -240,17 +278,23 @@ export async function updateArticleAction(_: State, formData: FormData) {
   const coverFile = formData.get("coverFile");
   if (coverFile && coverFile instanceof File && coverFile.size > 0) {
     if (!isImageMime(coverFile.type)) {
-      return { error: "صيغة صورة الغلاف غير مدعومة (PNG/JPEG/WEBP فقط)." };
+      return { error: "صيغة صورة الغلاف غير مدعومة (PNG/JPEG/WEBP فقط)." 
+        ,values,
+      };
     }
 
     const maxUploadBytes = 5 * 1024 * 1024;
     if (coverFile.size > maxUploadBytes) {
-      return { error: "حجم ملف الغلاف كبير جدًا. الحد الأعلى 5MB." };
+      return { error: "حجم ملف الغلاف كبير جدًا. الحد الأعلى 5MB."
+        ,values,
+       };
     }
 
     const optimized = await fileToOptimizedDataUrl(coverFile);
     if (optimized.error || !optimized.dataUrl) {
-      return { error: optimized.error || "فشل حفظ صورة الغلاف." };
+      return { error: optimized.error || "فشل حفظ صورة الغلاف."
+        ,values,
+       };
     }
 
     coverImageBase64 = optimized.dataUrl;
@@ -266,10 +310,14 @@ export async function updateArticleAction(_: State, formData: FormData) {
     },
   });
 
-  if (!prev) return { error: "المقال غير موجود." };
+  if (!prev) return { error: "المقال غير موجود."
+    ,values,
+   };
 
   if (!coverImageBase64 && !prev.coverImageBase64) {
-  return { error: "صورة الغلاف مطلوبة." };
+  return { error: "صورة الغلاف مطلوبة."
+    ,values,
+   };
 }
 
   const nextSlug = await ensureUniqueSlug(desiredSlug, id);

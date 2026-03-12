@@ -6,7 +6,7 @@ export type ArticleCardData = {
   title: string;
   excerpt: string;
   publishedAt: Date | null;
-  // coverImageUrl: string | null;
+  // coverImageUrl: string | null;  
   coverImageAlt: string | null;
   coverImageBase64: string | null;
 };

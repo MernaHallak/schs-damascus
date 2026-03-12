@@ -53,6 +53,16 @@ export default function HomePage() {
               </p>
             </Reveal>
 
+            {/* <Reveal delay={0.1}>
+              <div className="space-y-3">
+                {home.hero.list.map((item: string, idx: number) => (
+                  <p key={idx} className="text-base leading-8 text-slate-700">
+                    {item}
+                  </p>
+                ))}
+              </div>
+            </Reveal> */}
+
             <Reveal delay={0.15}>
               <div className="mt-7 flex flex-wrap gap-3">
                 <Link

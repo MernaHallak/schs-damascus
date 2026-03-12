@@ -30,14 +30,15 @@ export default function ExpandableText({
       >
         {text}
       </p>
-
+      
       <button
         type="button"
         onClick={() => setExpanded((v) => !v)}
-        className="mt-3 text-sm font-bold text-emerald-700 transition hover:text-emerald-800"
+        className="mt-3 text-sm font-bold text-emerald-700 transition hover:text-emerald-800 cursor-pointer"
       >
         {expanded ? "عرض أقل" : "عرض المزيد"}
       </button>
+
     </div>
   );
 }

@@ -179,7 +179,7 @@ const msg = sp.msg ?? "";
               <input type="hidden" name="isPublished" value={String(!a.isPublished)} />
               <button
                 type="submit"
-                className="rounded-xl border border-emerald-200 bg-emerald-50 px-3 py-2 text-xs font-bold text-emerald-700 transition hover:bg-emerald-100"
+                className="rounded-xl border border-emerald-200 bg-emerald-50 px-3 py-2 text-xs font-bold text-emerald-700 transition hover:bg-emerald-100 cursor-pointer"
               >
                 {a.isPublished ? "إلغاء النشر" : "نشر"}
               </button>

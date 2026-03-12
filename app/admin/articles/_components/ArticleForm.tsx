@@ -1,13 +1,12 @@
 "use client";
 import Link from "next/link";
-import { useActionState, useState } from "react";
+import { useActionState, useEffect, useState } from "react";
 
 type State = { ok?: boolean; error?: string };
 
 type Initial = {
   id?: string;
   title?: string;
-
   excerpt?: string;
   contentMarkdown?: string;
   isPublished?: boolean;
@@ -24,11 +23,42 @@ export default function ArticleForm({
   submitLabel: string;
   action: (prevState: State, formData: FormData) => Promise<State>;
 }) {
+  const initialState = { error: undefined, values: undefined };
+
   const [state, formAction, pending] = useActionState<State, FormData>(
     action,
-    {},
+    initialState,
   );
+
+  const currentValues = state.values ?? {
+    title: initial.title ?? "",
+    excerpt: initial.excerpt ?? "",
+    contentMarkdown: initial.contentMarkdown ?? "",
+    coverImageAlt: initial.coverImageAlt ?? "",
+    isPublished: initial.isPublished ?? false,
+  };
+
+  const [title, setTitle] = useState(currentValues.title);
+  const [excerpt, setExcerpt] = useState(currentValues.excerpt);
+  const [contentMarkdown, setContentMarkdown] = useState(
+    currentValues.contentMarkdown,
+  );
+  const [coverImageAlt, setCoverImageAlt] = useState(
+    currentValues.coverImageAlt,
+  );
+  const [isPublished, setIsPublished] = useState(currentValues.isPublished);
+
   const [selectedCoverName, setSelectedCoverName] = useState("");
+
+  useEffect(() => {
+    if (!state.values) return;
+
+    setTitle(state.values.title);
+    setExcerpt(state.values.excerpt);
+    setContentMarkdown(state.values.contentMarkdown);
+    setCoverImageAlt(state.values.coverImageAlt);
+    setIsPublished(state.values.isPublished);
+  }, [state.values]);
 
   return (
     <form action={formAction} className="grid gap-5">
@@ -38,7 +68,9 @@ export default function ArticleForm({
         <label className="text-sm font-bold text-slate-900">عنوان المقال</label>
         <input
           name="title"
-          defaultValue={initial.title ?? ""}
+          // defaultValue={initial.title ?? ""}
+          value={title}
+          onChange={(e) => setTitle(e.target.value)}
           className="w-full rounded-2xl border border-neutral-200 bg-white px-4 py-3 text-sm outline-none focus:ring-2 focus:ring-emerald-500/30"
           required
         />
@@ -51,7 +83,9 @@ export default function ArticleForm({
         <label className="text-sm font-bold text-slate-900">مقتطف</label>
         <textarea
           name="excerpt"
-          defaultValue={initial.excerpt ?? ""}
+          // defaultValue={initial.excerpt ?? ""}
+           value={excerpt}
+  onChange={(e) => setExcerpt(e.target.value)}
           rows={3}
           dir="auto"
           wrap="soft"
@@ -68,7 +102,9 @@ export default function ArticleForm({
         </label>
         <textarea
           name="contentMarkdown"
-          defaultValue={initial.contentMarkdown ?? ""}
+          // defaultValue={initial.contentMarkdown ?? ""}
+           value={contentMarkdown}
+  onChange={(e) => setContentMarkdown(e.target.value)}
           rows={14}
           dir="auto"
           wrap="soft"
@@ -128,7 +164,9 @@ export default function ArticleForm({
           </label>
           <input
             name="coverImageAlt"
-            defaultValue={initial.coverImageAlt ?? ""}
+            // defaultValue={initial.coverImageAlt ?? ""}
+             value={coverImageAlt}
+  onChange={(e) => setCoverImageAlt(e.target.value)}
             className="w-full rounded-2xl border border-neutral-200 bg-white px-4 py-3 text-sm outline-none focus:ring-2 focus:ring-emerald-500/30"
             placeholder="مثال: أخصائي يجري فحص سمع لطفل داخل العيادة"
             required
@@ -144,7 +182,9 @@ export default function ArticleForm({
         <input
           name="isPublished"
           type="checkbox"
-          defaultChecked={Boolean(initial.isPublished)}
+          // defaultChecked={Boolean(initial.isPublished)}
+          checked={isPublished}
+  onChange={(e) => setIsPublished(e.target.checked)}
           className="h-4 w-4 rounded border-neutral-300"
         />
         نشر المقال
