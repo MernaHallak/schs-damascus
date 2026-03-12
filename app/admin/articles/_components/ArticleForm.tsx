@@ -2,7 +2,18 @@
 import Link from "next/link";
 import { useActionState, useEffect, useState } from "react";
 
-type State = { ok?: boolean; error?: string };
+type FormValues = {
+  title: string;
+  excerpt: string;
+  contentMarkdown: string;
+  coverImageAlt: string;
+  isPublished: boolean;
+};
+
+type State = {
+  error?: string;
+  values?: FormValues;
+};
 
 type Initial = {
   id?: string;
@@ -23,7 +34,10 @@ export default function ArticleForm({
   submitLabel: string;
   action: (prevState: State, formData: FormData) => Promise<State>;
 }) {
-  const initialState = { error: undefined, values: undefined };
+  const initialState: State = {
+  error: undefined,
+  values: undefined,
+};
 
   const [state, formAction, pending] = useActionState<State, FormData>(
     action,
