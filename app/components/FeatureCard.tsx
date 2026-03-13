@@ -45,5 +45,13 @@ export default function FeatureCard({
 
   if (!href) return content;
 
-  return <Link href={href}>{content}</Link>;
+return (
+  <Link
+    href={href}
+    className="block h-full"
+    aria-label={`الانتقال إلى تفاصيل خدمة ${title}`}
+  >
+    {content}
+  </Link>
+);
 }

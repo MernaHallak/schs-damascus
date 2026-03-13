@@ -43,7 +43,12 @@ export default function TestsPage() {
         <div className="mt-8 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
           {testsDetails.map((c: any, idx: number) => (
             <Reveal key={`${c.title}-${idx}`} delay={0.04 * idx}>
-              <FeatureCard title={c.title} text={c.cardSubtitle} image={c.image} href={c.slug ? `/الفحوصات/${c.slug}` : undefined}/>
+              <FeatureCard
+                title={c.title}
+                text={c.intro}
+                image={c.image}
+                href={c.slug ? `/الفحوصات/${c.slug}` : undefined}
+              />
             </Reveal>
           ))}
         </div>
@@ -70,7 +75,11 @@ export default function TestsPage() {
                 </Link>
 
                 <a
-                  href={cta.secondaryHref === "WHATSAPP" ? site.whatsappUrl : cta.secondaryHref}
+                  href={
+                    cta.secondaryHref === "WHATSAPP"
+                      ? site.whatsappUrl
+                      : cta.secondaryHref
+                  }
                   target="_blank"
                   rel="noreferrer"
                   className="inline-flex rounded-2xl border border-neutral-200 bg-white px-5 py-3 text-sm font-bold text-slate-900 shadow-sm transition hover:bg-neutral-50"

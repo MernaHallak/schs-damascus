@@ -1,4 +1,3 @@
-
 import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
@@ -6,6 +5,7 @@ import Reveal from "../components/Reveal";
 import FeatureCard from "../components/FeatureCard";
 import { content } from "../lib/content";
 import ExpandableText from "../components/ExpandableText";
+import { slugify } from "../lib/slug";
 
 export const metadata: Metadata = {
   title: "الخدمات",
@@ -64,20 +64,25 @@ export default function ServicesPage() {
           {cards.map((s: any, idx: number) => {
             const flip = idx % 2 === 1;
             const img = s.detailImage ?? s.image;
+            const serviceId = slugify(s.title);
 
             return (
               <Reveal key={s.title} delay={0.04 * idx}>
-                <div className="rounded-3xl border border-neutral-200 bg-white p-6 sm:p-8 shadow-sm">
+                <article
+                  id={serviceId}
+                  className="scroll-mt-28 rounded-3xl border border-neutral-200 bg-white p-6 sm:p-8 shadow-sm"
+                >
                   <div className="grid gap-6 lg:grid-cols-2 lg:items-center">
                     <div className={flip ? "lg:order-2" : ""}>
                       <h3 className="text-xl sm:text-2xl font-extrabold tracking-tight text-slate-900">
                         {s.title}
                       </h3>
-                      {/* <p className="mt-3 text-sm sm:text-base leading-8 text-slate-600 whitespace-pre-line">
-                        {s.text}
-                      </p> */}
-<ExpandableText text={s.text} lines={6} />
-                     
+
+                      <ExpandableText
+                        text={s.text}
+                        lines={6}
+                        anchorId={serviceId}
+                      />
                     </div>
 
                     <div className={flip ? "lg:order-1" : ""}>
@@ -94,14 +99,12 @@ export default function ServicesPage() {
                       </div>
                     </div>
                   </div>
-                </div>
+                </article>
               </Reveal>
             );
           })}
         </div>
       </section>
-
-     
     </div>
   );
 }

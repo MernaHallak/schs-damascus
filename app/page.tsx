@@ -4,6 +4,7 @@ import type { Metadata } from "next";
 import Reveal from "./components/Reveal";
 import FeatureCard from "./components/FeatureCard";
 import { content, testsDetails } from "./lib/content";
+import { slugify } from "./lib/slug";
 
 export const metadata: Metadata = {
   alternates: { canonical: "/" },
@@ -48,20 +49,25 @@ export default function HomePage() {
             </Reveal>
 
             <Reveal delay={0.1}>
-              <p className="mt-4 text-base sm:text-lg leading-8 text-slate-700">
-                {home.hero.subtitle}
-              </p>
-            </Reveal>
-
-            {/* <Reveal delay={0.1}>
-              <div className="space-y-3">
+              <div className="space-y-4">
                 {home.hero.list.map((item: string, idx: number) => (
-                  <p key={idx} className="text-base leading-8 text-slate-700">
+                  <p
+                    key={idx}
+                    className="
+          max-w-2xl
+          text-base
+          leading-8
+          text-slate-700
+          sm:text-lg
+          sm:leading-9
+          tracking-[0.01em]
+        "
+                  >
                     {item}
                   </p>
                 ))}
               </div>
-            </Reveal> */}
+            </Reveal>
 
             <Reveal delay={0.15}>
               <div className="mt-7 flex flex-wrap gap-3">
@@ -119,16 +125,21 @@ export default function HomePage() {
         </Reveal>
 
         <div className="mt-8 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-          {services.cards.map((c, idx) => (
-            <Reveal key={c.title} delay={0.05 * idx}>
-              <FeatureCard
-                title={c.title}
-                text={c.text}
-                image={c.image}
-                subText={c.subText}
-              />
-            </Reveal>
-          ))}
+          {services.cards.map((c, idx) => {
+            const serviceId = slugify(c.title);
+
+            return (
+              <Reveal key={c.title} delay={0.05 * idx}>
+                <FeatureCard
+                  title={c.title}
+                  text={c.text}
+                  image={c.image}
+                  subText={c.subText}
+                  href={`/الخدمات#${serviceId}`}
+                />
+              </Reveal>
+            );
+          })}
         </div>
       </section>
 
@@ -144,17 +155,19 @@ export default function HomePage() {
               </p>
               <div className="mt-5 grid gap-3">
                 {testsDetails.map((t) => (
-                  <div
-                    key={t.title}
-                    className="rounded-2xl border border-neutral-200 bg-neutral-50 px-4 py-3"
+                  <Link
+                    key={t.slug || t.title}
+                    href={t.slug ? `/الفحوصات/${t.slug}` : "/الفحوصات"}
+                    aria-label={`الانتقال إلى صفحة ${t.title}`}
+                    className="block rounded-2xl border border-neutral-200 bg-neutral-50 px-4 py-3 transition hover:-translate-y-0.5 hover:border-emerald-200 hover:bg-white hover:shadow-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/20"
                   >
                     <div className="text-sm font-bold text-slate-900">
                       {t.title}
                     </div>
                     <div className="mt-1 text-sm leading-7 text-slate-600">
-                      {t.subtitle}
+                      {t.intro}
                     </div>
-                  </div>
+                  </Link>
                 ))}
               </div>
               <div className="mt-6 flex flex-wrap gap-3">
