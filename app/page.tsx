@@ -43,13 +43,13 @@ export default function HomePage() {
             </Reveal>
 
             <Reveal delay={0.05}>
-              <h1 className="mt-6 text-3xl sm:text-4xl lg:text-5xl font-black tracking-tight text-slate-900 leading-[1.15]">
+              <h1 className="my-6 text-3xl sm:text-4xl lg:text-5xl font-black tracking-tight text-slate-900 leading-[1.15]">
                 {home.hero.title}
               </h1>
             </Reveal>
 
             <Reveal delay={0.1}>
-              <div className="space-y-4">
+              <div >
                 {home.hero.list.map((item: string, idx: number) => (
                   <p
                     key={idx}

@@ -73,45 +73,6 @@ export default async function TestDetailsPage({ params }: PageProps) {
           </Link>
         </Reveal>
 
-        {/* البطاقة الرئيسية */}
-        {/* <div className="overflow-hidden rounded-3xl border border-[#dbece5] bg-white shadow-[0_8px_30px_rgba(0,0,0,0.05)]">
-          <Reveal>
-            <div className="relative h-56 w-full md:h-80">
-              <Image
-                src={item.image}
-                alt={item.imageAlt || item.title}
-                fill
-                priority
-                className="object-cover"
-                sizes="(max-width: 768px) 100vw, 1024px"
-              />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/35 to-transparent" />
-            </div>
-          </Reveal>
-
-          <div className="p-5 md:p-8">
-            <Reveal delay={0.03}>
-              <span className="inline-block rounded-full bg-[#e7f5ef] px-3 py-1 text-xs font-medium text-[#0f6b53] md:text-sm">
-                الفحوصات السمعية
-              </span>
-            </Reveal>
-
-            <Reveal delay={0.06}>
-              <h1 className="mt-3 text-2xl font-bold leading-tight text-[#123b31] md:text-4xl">
-                {item.title}
-              </h1>
-            </Reveal>
-
-            {item.intro  ? (
-              <Reveal delay={0.09}>
-                <p className="mt-2 text-lg font-medium text-[#19624f] md:text-xl">
-                  {item.intro}
-                </p>
-              </Reveal>
-            ) : null}
-
-          </div>
-        </div> */}
 
         <div className="overflow-hidden rounded-3xl border border-[#dbece5] bg-white shadow-[0_8px_30px_rgba(0,0,0,0.05)]">
           <Reveal>
