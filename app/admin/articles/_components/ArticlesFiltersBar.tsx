@@ -18,30 +18,49 @@ export default function ArticlesFiltersBar({
   const [q, setQ] = useState(initialQ);
   const [status, setStatus] = useState(initialStatus);
 
-  function buildUrl(nextQ: string, nextStatus: string) {
-    const params = new URLSearchParams(sp.toString());
 
-    const trimmed = nextQ.trim();
+function buildUrl(nextQ: string, nextStatus: string) {
+  const params = new URLSearchParams(sp.toString());
 
-    if (!nextStatus || nextStatus === "all") params.delete("status");
-    else params.set("status", nextStatus);
+  const trimmed = nextQ.trim();
 
-    if (!trimmed) params.delete("q");
-    else params.set("q", trimmed);
+  if (!nextStatus || nextStatus === "all") params.delete("status");
+  else params.set("status", nextStatus);
 
-    params.delete("page");
+  if (!trimmed) params.delete("q");
+  else params.set("q", trimmed);
 
-    const qs = params.toString();
-    return qs ? `/admin/articles?${qs}` : "/admin/articles";
-  }
+  params.delete("page");
+  params.delete("msg");
 
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      router.replace(buildUrl(q, status), { scroll: false });
-    }, 50);
+  const qs = params.toString();
+  return qs ? `/admin/articles?${qs}` : "/admin/articles";
+}
 
-    return () => clearTimeout(timer);
-  }, [q, status, router]);
+  // function buildUrl(nextQ: string, nextStatus: string) {
+  //   const params = new URLSearchParams(sp.toString());
+
+  //   const trimmed = nextQ.trim();
+
+  //   if (!nextStatus || nextStatus === "all") params.delete("status");
+  //   else params.set("status", nextStatus);
+
+  //   if (!trimmed) params.delete("q");
+  //   else params.set("q", trimmed);
+
+  //   params.delete("page");
+
+  //   const qs = params.toString();
+  //   return qs ? `/admin/articles?${qs}` : "/admin/articles";
+  // }
+
+  // useEffect(() => {
+  //   const timer = setTimeout(() => {
+  //     router.replace(buildUrl(q, status), { scroll: false });
+  //   }, 50);
+
+  //   return () => clearTimeout(timer);
+  // }, [q, status, router]);
 
   useEffect(() => {
     setQ(sp.get("q") ?? "");
