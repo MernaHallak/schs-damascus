@@ -363,22 +363,26 @@ export async function deleteArticleAction(formData: FormData) {
   await ensureAdmin();
   const id = String(formData.get("id") || "").trim();
   if (!id) redirect("/admin/articles?msg=error");
+  let prevSlug: string | null = null;
 
-  try {
-    const prev = await prisma.article.findUnique({
-      where: { id },
-      select: { slug: true },
-    });
-    await prisma.article.delete({ where: { id } });
+ try {
+  const prev = await prisma.article.findUnique({
+    where: { id },
+    select: { slug: true },
+  });
 
-    revalidatePath("/articles");
-    if (prev?.slug) revalidatePath(`/articles/${prev.slug}`);
-    revalidatePath("/sitemap.xml");
+  prevSlug = prev?.slug ?? null;
 
-    redirect("/admin/articles?msg=deleted");
-  } catch {
-    redirect("/admin/articles?msg=error");
-  }
+  await prisma.article.delete({ where: { id } });
+} catch {
+  redirect("/admin/articles?msg=error");
+}
+
+revalidatePath("/articles");
+if (prevSlug) revalidatePath(`/articles/${prevSlug}`);
+revalidatePath("/sitemap.xml");
+
+redirect("/admin/articles?msg=deleted");
 }
 
 export async function togglePublishAction(formData: FormData) {
@@ -407,26 +411,30 @@ export async function togglePublishAction(formData: FormData) {
   }
 
   if (isPublished === null) redirect("/admin/articles?msg=error");
+  let prevSlug: string | null = null;
 
   try {
-    const prev = await prisma.article.findUnique({
-      where: { id },
-      select: { slug: true },
-    });
-    await prisma.article.update({
-      where: { id },
-      data: {
-        isPublished,
-        publishedAt: isPublished ? new Date() : null,
-      },
-    });
+  const prev = await prisma.article.findUnique({
+    where: { id },
+    select: { slug: true },
+  });
 
-    revalidatePath("/articles");
-    if (prev?.slug) revalidatePath(`/articles/${prev.slug}`);
-    revalidatePath("/sitemap.xml");
+  prevSlug = prev?.slug ?? null;
 
-    redirect(`/admin/articles?msg=${isPublished ? "published" : "draft"}`);
-  } catch {
-    redirect("/admin/articles?msg=error");
-  }
+  await prisma.article.update({
+    where: { id },
+    data: {
+      isPublished,
+      publishedAt: isPublished ? new Date() : null,
+    },
+  });
+} catch {
+  redirect("/admin/articles?msg=error");
+}
+
+revalidatePath("/articles");
+if (prevSlug) revalidatePath(`/articles/${prevSlug}`);
+revalidatePath("/sitemap.xml");
+
+redirect(`/admin/articles?msg=${isPublished ? "published" : "draft"}`);
 }
