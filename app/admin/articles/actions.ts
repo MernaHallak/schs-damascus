@@ -220,7 +220,7 @@ let coverImageBase64: string | null = null;
   // حتى لو الصفحات صارت ISR لاحقًا
   revalidatePath("/articles");
   // revalidatePath(`/articles/${slug}`);
-  // revalidatePath("/sitemap.xml");
+  revalidatePath("/sitemap.xml");
 
   redirect("/admin/articles?msg=created");
 }
@@ -354,7 +354,7 @@ export async function updateArticleAction(_: State, formData: FormData) {
   revalidatePath("/articles");
   // revalidatePath(`/articles/${prev.slug}`);
   // revalidatePath(`/articles/${nextSlug}`);
-  // revalidatePath("/sitemap.xml");
+  revalidatePath("/sitemap.xml");
 
   redirect("/admin/articles?msg=updated");
 }
@@ -380,7 +380,7 @@ export async function deleteArticleAction(formData: FormData) {
 
 revalidatePath("/articles");
 // if (prevSlug) revalidatePath(`/articles/${prevSlug}`);
-// revalidatePath("/sitemap.xml");
+revalidatePath("/sitemap.xml");
 
 redirect("/admin/articles?msg=deleted");
 }
@@ -434,7 +434,7 @@ export async function togglePublishAction(formData: FormData) {
 
 revalidatePath("/articles");
 // if (prevSlug) revalidatePath(`/articles/${prevSlug}`);
-// revalidatePath("/sitemap.xml");
+revalidatePath("/sitemap.xml");
 
 redirect(`/admin/articles?msg=${isPublished ? "published" : "draft"}`);
 }
