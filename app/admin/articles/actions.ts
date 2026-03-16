@@ -159,6 +159,7 @@ async function buildGalleryImages(
 function getFormValues(formData: FormData): FormValues {
   return {
     title: String(formData.get("title") || ""),
+    author: String(formData.get("author") || ""),
     excerpt: String(formData.get("excerpt") || ""),
     contentMarkdown: String(formData.get("contentMarkdown") || ""),
     coverImageAlt: String(formData.get("coverImageAlt") || ""),
