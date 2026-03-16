@@ -7,7 +7,7 @@ export type ArticleCardData = {
   author: string;
   excerpt: string;
   publishedAt: Date | null;
-  // coverImageUrl: string | null;  
+  // coverImageUrl: string | null;
   coverImageAlt: string | null;
   coverImageBase64: string | null;
 };
@@ -31,7 +31,7 @@ export default function ArticleCard({ a }: { a: ArticleCardData }) {
             src={cover}
             alt={a.coverImageAlt || a.title}
             sizes="(max-width: 768px) 100vw, 33vw"
-           className="absolute inset-0 h-full w-full object-cover object-[50%_25%] transition group-hover:scale-105"
+            className="absolute inset-0 h-full w-full object-cover object-[50%_25%] transition group-hover:scale-105"
           />
         ) : (
           <div className="flex h-full w-full items-center justify-center text-sm text-neutral-500">
@@ -42,8 +42,11 @@ export default function ArticleCard({ a }: { a: ArticleCardData }) {
       </div>
 
       <div className="p-6">
-        <div className="text-xs text-slate-500">{formatDate(a.publishedAt)}</div>
-          <div className="mt-1 text-xs text-slate-500">الكاتب: {a.author}</div>
+        <div className="mt-1 flex flex-wrap items-center gap-x-2 gap-y-1 text-xs text-slate-500">
+          <span>{formatDate(a.publishedAt)}</span>
+          <span className="text-slate-300">•</span>
+          <span>الكاتب: {a.author}</span>
+        </div>
         <h3 className="mt-1 text-base font-extrabold tracking-tight text-slate-900 break-words [overflow-wrap:anywhere]">
           {a.title}
         </h3>
