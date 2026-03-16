@@ -4,13 +4,13 @@
   "city": "دمشق",
   "country": "سوريا",
 
-  "clinicPhoneLabel": "هاتف العيادة",
-  "clinicPhone": " 963961168744+",
-  "clinicPhoneHref": "tel: 963961168744+",
+  "clinicPhoneLabel": "واتساب العيادة",
+  "clinicPhone": "963961168744+",
+"clinicPhoneHref": "https://wa.me/963961168744",
 
   "landlinePhoneLabel": "أرضي العيادة",
-  "landlinePhone": "963114416016",
-  "landlinePhoneHref": "tel:963114416016",
+  "landlinePhone": "963114416016+",
+  "landlinePhoneHref": "tel:963114416016+",
 
   "whatsAppLabel": "للتواصل واتساب",
   "whatsapp": "963999254196+",

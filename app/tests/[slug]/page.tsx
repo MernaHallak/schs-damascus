@@ -73,7 +73,6 @@ export default async function TestDetailsPage({ params }: PageProps) {
           </Link>
         </Reveal>
 
-
         <div className="overflow-hidden rounded-3xl border border-[#dbece5] bg-white shadow-[0_8px_30px_rgba(0,0,0,0.05)]">
           <Reveal>
             <TestHeroMedia item={item} />
@@ -104,35 +103,76 @@ export default async function TestDetailsPage({ params }: PageProps) {
 
         {/* أقسام المحتوى */}
         <section className="mt-6 space-y-4" aria-label={`تفاصيل ${item.title}`}>
-          {item.sections.map((section, idx) => (
-            <Reveal
-              key={`${section.heading}-${idx}`}
-              delay={Math.min(idx * 0.04, 0.2)}
-            >
-              <article className="rounded-2xl border border-[#dbece5] bg-white p-5 shadow-sm md:p-6">
-                <h2 className="mb-3 text-lg font-bold text-[#123b31] md:text-xl">
-                  {section.heading}
-                </h2>
+          {item.sections.map((section, idx) => {
+            const isTympanometryResultsSection =
+              item.slug === "tympanometry" &&
+              section.heading === "ماذا تعني النتائج؟";
 
-                {section.content ? (
-                  <p className="text-sm leading-8 text-[#3a6056] md:text-base">
-                    {section.content}
-                  </p>
-                ) : null}
+            return (
+              <Reveal
+                key={`${section.heading}-${idx}`}
+                delay={Math.min(idx * 0.04, 0.2)}
+              >
+                <article className="rounded-2xl border border-[#dbece5] bg-white p-5 shadow-sm md:p-6">
+                  <h2 className="mb-3 text-lg font-bold text-[#123b31] md:text-xl">
+                    {section.heading}
+                  </h2>
 
-                {section.list?.length ? (
-                  <ul className="space-y-2 text-sm leading-8 text-[#3a6056] md:text-base">
-                    {section.list.map((point, i) => (
-                      <li key={i} className="flex items-start gap-2">
-                        <span className="mt-2 h-2 w-2 shrink-0 rounded-full bg-[#17a36b]" />
-                        <span>{point}</span>
-                      </li>
-                    ))}
-                  </ul>
-                ) : null}
-              </article>
-            </Reveal>
-          ))}
+                  {isTympanometryResultsSection ? (
+                    <div className="grid gap-6 xl:grid-cols-[minmax(0,1fr)_460px] xl:items-start">
+                      <div>
+                        {section.content ? (
+                          <p className="text-sm leading-8 text-[#3a6056] md:text-base">
+                            {section.content}
+                          </p>
+                        ) : null}
+
+                        {section.list?.length ? (
+                          <ul className="mt-3 space-y-2 text-sm leading-8 text-[#3a6056] md:text-base">
+                            {section.list.map((point, i) => (
+                              <li key={i} className="flex items-start gap-2">
+                                <span className="mt-2 h-2 w-2 shrink-0 rounded-full bg-[#17a36b]" />
+                                <span>{point}</span>
+                              </li>
+                            ))}
+                          </ul>
+                        ) : null}
+                      </div>
+                      <div className="mx-auto w-full max-w-[560px] overflow-hidden rounded-2xl border border-[#dbece5] bg-[#f8fcfa] p-3 xl:mx-0 xl:max-w-none">
+                        <Image
+                          src="/assets/tests/نتاىج المعاوقة السمعية.png"
+                          alt="أنماط نتائج اختبار المعاوقة السمعية Tympanogram مثل Type A وType As وType B وType C"
+                          width={1100}
+                          height={900}
+                          className="h-auto w-full rounded-xl object-contain"
+                          sizes="(max-width: 1279px) min(100vw - 3rem, 560px), 460px"
+                        />
+                      </div>
+                    </div>
+                  ) : (
+                    <>
+                      {section.content ? (
+                        <p className="text-sm leading-8 text-[#3a6056] md:text-base">
+                          {section.content}
+                        </p>
+                      ) : null}
+
+                      {section.list?.length ? (
+                        <ul className="space-y-2 text-sm leading-8 text-[#3a6056] md:text-base">
+                          {section.list.map((point, i) => (
+                            <li key={i} className="flex items-start gap-2">
+                              <span className="mt-2 h-2 w-2 shrink-0 rounded-full bg-[#17a36b]" />
+                              <span>{point}</span>
+                            </li>
+                          ))}
+                        </ul>
+                      ) : null}
+                    </>
+                  )}
+                </article>
+              </Reveal>
+            );
+          })}
         </section>
 
         {/* CTA بدون ناف/فوتر */}

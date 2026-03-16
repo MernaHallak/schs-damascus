@@ -34,6 +34,8 @@ export default function ContactPage() {
                 <a
                   className="underline underline-offset-4"
                   href={site.clinicPhoneHref}
+                  target="_blank"
+                  rel="noreferrer"
                 >
                   {site.clinicPhone}
                 </a>
@@ -51,7 +53,7 @@ export default function ContactPage() {
                 </a>
               </div>
 
-              <div>
+              {/* <div>
                 <span className="font-bold text-slate-900">
                   {site.whatsAppLabel}:
                 </span>{" "}
@@ -63,7 +65,7 @@ export default function ContactPage() {
                 >
                   {site.whatsapp}
                 </a>
-              </div>
+              </div> */}
 
               <div>
                 <span className="font-bold text-slate-900">العنوان:</span>{" "}
@@ -79,7 +81,7 @@ export default function ContactPage() {
 
             <div className="mt-6 flex flex-col items-start gap-3 sm:flex-row sm:flex-wrap sm:justify-staet">
               <a
-                href={site.whatsappUrl}
+                href={site.clinicPhoneHref}
                 target="_blank"
                 rel="noreferrer"
                 className="inline-flex min-w-[160px] justify-center rounded-2xl bg-emerald-600 px-6 py-3 text-sm font-bold text-white shadow-sm transition hover:bg-emerald-700 focus:outline-none focus:ring-2 focus:ring-emerald-500/30"
