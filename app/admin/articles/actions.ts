@@ -41,6 +41,11 @@ async function ensureUniqueSlug(base: string, excludeId?: string) {
 
 const baseSchema = z.object({
   title: z.string().min(3, "العنوان قصير جدًا."),
+  author: z
+    .string()
+    .trim()
+    .min(2, "اسم الكاتب مطلوب.")
+    .max(120, "اسم الكاتب طويل جدًا."),
   excerpt: z.string().min(10, "المقتطف قصير جدًا."),
   contentMarkdown: z.string().min(20, "المحتوى قصير جدًا."),
 
@@ -56,10 +61,13 @@ const baseSchema = z.object({
 
 type FormValues = {
   title: string;
+  author: string;
   excerpt: string;
   contentMarkdown: string;
   coverImageAlt: string;
   isPublished: boolean;
+  galleryAltBase: string;
+  clearGallery: boolean;
 };
 
 type State = {
@@ -70,7 +78,6 @@ type State = {
 function isImageMime(mime: string) {
   return ["image/png", "image/jpeg", "image/webp"].includes(mime);
 }
-
 
 async function fileToOptimizedDataUrl(
   file: File,
@@ -113,13 +120,51 @@ async function fileToOptimizedDataUrl(
   }
 }
 
+async function buildGalleryImages(
+  files: File[],
+  altBase: string,
+): Promise<{
+  images?: { imageBase64: string; imageAlt: string; sortOrder: number }[];
+  error?: string;
+}> {
+  const maxUploadBytes = 5 * 1024 * 1024;
+  const limitedFiles = files.slice(0, 8);
+  const images: { imageBase64: string; imageAlt: string; sortOrder: number }[] =
+    [];
+
+  for (const [index, file] of limitedFiles.entries()) {
+    if (!isImageMime(file.type)) {
+      return { error: "صيغة إحدى الصور الإضافية غير مدعومة." };
+    }
+
+    if (file.size > maxUploadBytes) {
+      return { error: "إحدى الصور الإضافية أكبر من 5MB." };
+    }
+
+    const optimized = await fileToOptimizedDataUrl(file);
+    if (optimized.error || !optimized.dataUrl) {
+      return { error: optimized.error || "فشل حفظ إحدى الصور الإضافية." };
+    }
+
+    images.push({
+      imageBase64: optimized.dataUrl,
+      imageAlt: `${altBase} - صورة ${index + 1}`,
+      sortOrder: index,
+    });
+  }
+
+  return { images };
+}
+
 function getFormValues(formData: FormData): FormValues {
   return {
     title: String(formData.get("title") || ""),
     excerpt: String(formData.get("excerpt") || ""),
     contentMarkdown: String(formData.get("contentMarkdown") || ""),
     coverImageAlt: String(formData.get("coverImageAlt") || ""),
+    galleryAltBase: String(formData.get("galleryAltBase") || ""),
     isPublished: formData.get("isPublished") === "on",
+    clearGallery: formData.get("clearGallery") === "on",
   };
 }
 
@@ -129,6 +174,7 @@ export async function createArticleAction(_: State, formData: FormData) {
 
   const parsed = baseSchema.safeParse({
     title: formData.get("title"),
+    author: formData.get("author"),
     excerpt: formData.get("excerpt"),
     contentMarkdown: formData.get("contentMarkdown"),
     coverImageAlt: formData.get("coverImageAlt"),
@@ -137,17 +183,29 @@ export async function createArticleAction(_: State, formData: FormData) {
 
   if (!parsed.success) {
     return {
-    error: parsed.error.issues[0]?.message || "بيانات غير صحيحة.",
-    values,
-  };
+      error: parsed.error.issues[0]?.message || "بيانات غير صحيحة.",
+      values,
+    };
   }
 
   const title = parsed.data.title.trim();
+  const author = parsed.data.author.trim();
   const coverImageAlt = String(parsed.data.coverImageAlt || "").trim() || null;
   let slug = slugify(title);
   const excerpt = String(parsed.data.excerpt ?? "");
   const contentMarkdown = String(parsed.data.contentMarkdown ?? "");
   const isPublished = parsed.data.isPublished === "on";
+  const galleryFiles = formData
+    .getAll("galleryFiles")
+    .filter((item): item is File => item instanceof File && item.size > 0);
+
+  const galleryAltBase =
+    String(formData.get("galleryAltBase") || "").trim() || title;
+
+  const galleryBuilt = await buildGalleryImages(galleryFiles, galleryAltBase);
+  if (galleryBuilt.error) {
+    return { error: galleryBuilt.error, values };
+  }
 
   // أهم سبب للـ horizontal scroll: إدخال Base64 داخل المحتوى نفسه.
   if (
@@ -156,57 +214,55 @@ export async function createArticleAction(_: State, formData: FormData) {
   ) {
     return {
       error:
-        "لصورة الغلاف استخدم رفع ملف من جهازك، وللصور داخل النص استخدم رابط صورة مباشر."
-        , values,
+        "لصورة الغلاف استخدم رفع ملف من جهازك، وللصور داخل النص استخدم رابط صورة مباشر.",
+      values,
     };
   }
 
   if (!slug) {
     return {
-      error: "تعذر توليد الرابط من العنوان. عدّلي العنوان."
-      , values,
+      error: "تعذر توليد الرابط من العنوان. عدّلي العنوان.",
+      values,
     };
   }
 
   slug = await ensureUniqueSlug(slug);
 
-let coverImageBase64: string | null = null;
+  let coverImageBase64: string | null = null;
   // 2) إذا تم رفع ملف → يتغلب على الرابط
   const coverFile = formData.get("coverFile");
   if (coverFile && coverFile instanceof File && coverFile.size > 0) {
     if (!isImageMime(coverFile.type)) {
-      return { error: "صيغة صورة الغلاف غير مدعومة (PNG/JPEG/WEBP فقط)."
-        , values, };
+      return {
+        error: "صيغة صورة الغلاف غير مدعومة (PNG/JPEG/WEBP فقط).",
+        values,
+      };
     }
 
     const maxUploadBytes = 5 * 1024 * 1024;
     if (coverFile.size > maxUploadBytes) {
-      return { error: "حجم ملف الغلاف كبير جدًا. الحد الأعلى 5MB."
-        , values, };
+      return { error: "حجم ملف الغلاف كبير جدًا. الحد الأعلى 5MB.", values };
     }
 
     const optimized = await fileToOptimizedDataUrl(coverFile);
     if (optimized.error || !optimized.dataUrl) {
-      return { error: optimized.error || "فشل حفظ صورة الغلاف." 
-        , values, };
+      return { error: optimized.error || "فشل حفظ صورة الغلاف.", values };
     }
 
     coverImageBase64 = optimized.dataUrl;
   }
 
   if (!coverImageBase64) {
-  return { error: "صورة الغلاف مطلوبة."
-    , values, };
-}
+    return { error: "صورة الغلاف مطلوبة.", values };
+  }
 
   const now = new Date();
   const publishedAt = isPublished ? now : null;
 
-  
-
   await prisma.article.create({
     data: {
       title,
+      author,
       slug,
       excerpt,
       contentMarkdown,
@@ -214,6 +270,9 @@ let coverImageBase64: string | null = null;
       isPublished,
       publishedAt,
       coverImageAlt,
+      galleryImages: galleryBuilt.images?.length
+        ? { create: galleryBuilt.images }
+        : undefined,
     },
   });
 
@@ -230,12 +289,11 @@ export async function updateArticleAction(_: State, formData: FormData) {
 
   const id = String(formData.get("id") || "").trim();
   const values = getFormValues(formData);
-  if (!id) return { error: "المعرّف غير صحيح."
-     ,values,
-   };
+  if (!id) return { error: "المعرّف غير صحيح.", values };
 
   const parsed = baseSchema.safeParse({
     title: formData.get("title"),
+    author: formData.get("author"),
     excerpt: formData.get("excerpt"),
     contentMarkdown: formData.get("contentMarkdown"),
     coverImageAlt: formData.get("coverImageAlt"),
@@ -243,17 +301,32 @@ export async function updateArticleAction(_: State, formData: FormData) {
   });
 
   if (!parsed.success) {
-    return { error: parsed.error.issues[0]?.message || "بيانات غير صحيحة."
-      ,values,
-     };
+    return {
+      error: parsed.error.issues[0]?.message || "بيانات غير صحيحة.",
+      values,
+    };
   }
 
   const title = parsed.data.title.trim();
+  const author = parsed.data.author.trim();
   const coverImageAlt = String(parsed.data.coverImageAlt || "").trim() || null;
   const desiredSlug = slugify(title);
   const excerpt = String(parsed.data.excerpt ?? "");
   const contentMarkdown = String(parsed.data.contentMarkdown ?? "");
   const isPublished = parsed.data.isPublished === "on";
+  const galleryFiles = formData
+    .getAll("galleryFiles")
+    .filter((item): item is File => item instanceof File && item.size > 0);
+
+  const galleryAltBase =
+    String(formData.get("galleryAltBase") || "").trim() || title;
+
+  const clearGallery = formData.get("clearGallery") === "on";
+
+  const galleryBuilt = await buildGalleryImages(galleryFiles, galleryAltBase);
+  if (galleryBuilt.error) {
+    return { error: galleryBuilt.error, values };
+  }
 
   if (
     /^data:image\//im.test(contentMarkdown) ||
@@ -261,15 +334,15 @@ export async function updateArticleAction(_: State, formData: FormData) {
   ) {
     return {
       error:
-        " لصورة الغلاف استخدم رفع ملف من جهازك، وللصور داخل النص استخدم رابط صورة مباشر."
-        ,values,
+        " لصورة الغلاف استخدم رفع ملف من جهازك، وللصور داخل النص استخدم رابط صورة مباشر.",
+      values,
     };
   }
 
   if (!desiredSlug) {
     return {
-      error: "تعذر توليد الرابط من العنوان. عدّلي العنوان."
-      ,values,
+      error: "تعذر توليد الرابط من العنوان. عدّلي العنوان.",
+      values,
     };
   }
 
@@ -278,23 +351,20 @@ export async function updateArticleAction(_: State, formData: FormData) {
   const coverFile = formData.get("coverFile");
   if (coverFile && coverFile instanceof File && coverFile.size > 0) {
     if (!isImageMime(coverFile.type)) {
-      return { error: "صيغة صورة الغلاف غير مدعومة (PNG/JPEG/WEBP فقط)." 
-        ,values,
+      return {
+        error: "صيغة صورة الغلاف غير مدعومة (PNG/JPEG/WEBP فقط).",
+        values,
       };
     }
 
     const maxUploadBytes = 5 * 1024 * 1024;
     if (coverFile.size > maxUploadBytes) {
-      return { error: "حجم ملف الغلاف كبير جدًا. الحد الأعلى 5MB."
-        ,values,
-       };
+      return { error: "حجم ملف الغلاف كبير جدًا. الحد الأعلى 5MB.", values };
     }
 
     const optimized = await fileToOptimizedDataUrl(coverFile);
     if (optimized.error || !optimized.dataUrl) {
-      return { error: optimized.error || "فشل حفظ صورة الغلاف."
-        ,values,
-       };
+      return { error: optimized.error || "فشل حفظ صورة الغلاف.", values };
     }
 
     coverImageBase64 = optimized.dataUrl;
@@ -310,15 +380,11 @@ export async function updateArticleAction(_: State, formData: FormData) {
     },
   });
 
-  if (!prev) return { error: "المقال غير موجود."
-    ,values,
-   };
+  if (!prev) return { error: "المقال غير موجود.", values };
 
   if (!coverImageBase64 && !prev.coverImageBase64) {
-  return { error: "صورة الغلاف مطلوبة."
-    ,values,
-   };
-}
+    return { error: "صورة الغلاف مطلوبة.", values };
+  }
 
   const nextSlug = await ensureUniqueSlug(desiredSlug, id);
   const publishedAt = isPublished ? prev.publishedAt || new Date() : null;
@@ -340,6 +406,7 @@ export async function updateArticleAction(_: State, formData: FormData) {
       where: { id },
       data: {
         title,
+        author,
         slug: nextSlug,
         excerpt,
         contentMarkdown,
@@ -347,6 +414,20 @@ export async function updateArticleAction(_: State, formData: FormData) {
         isPublished,
         publishedAt,
         coverImageAlt,
+        ...(clearGallery
+          ? {
+              galleryImages: {
+                deleteMany: {},
+              },
+            }
+          : galleryBuilt.images?.length
+            ? {
+                galleryImages: {
+                  deleteMany: {},
+                  create: galleryBuilt.images,
+                },
+              }
+            : {}),
       },
     });
   });
@@ -365,24 +446,24 @@ export async function deleteArticleAction(formData: FormData) {
   if (!id) redirect("/admin/articles?msg=error");
   let prevSlug: string | null = null;
 
- try {
-  const prev = await prisma.article.findUnique({
-    where: { id },
-    select: { slug: true },
-  });
+  try {
+    const prev = await prisma.article.findUnique({
+      where: { id },
+      select: { slug: true },
+    });
 
-  prevSlug = prev?.slug ?? null;
+    prevSlug = prev?.slug ?? null;
 
-  await prisma.article.delete({ where: { id } });
-} catch {
-  redirect("/admin/articles?msg=error");
-}
+    await prisma.article.delete({ where: { id } });
+  } catch {
+    redirect("/admin/articles?msg=error");
+  }
 
-revalidatePath("/articles");
-// if (prevSlug) revalidatePath(`/articles/${prevSlug}`);
-revalidatePath("/sitemap.xml");
+  revalidatePath("/articles");
+  // if (prevSlug) revalidatePath(`/articles/${prevSlug}`);
+  revalidatePath("/sitemap.xml");
 
-redirect("/admin/articles?msg=deleted");
+  redirect("/admin/articles?msg=deleted");
 }
 
 export async function togglePublishAction(formData: FormData) {
@@ -414,27 +495,27 @@ export async function togglePublishAction(formData: FormData) {
   let prevSlug: string | null = null;
 
   try {
-  const prev = await prisma.article.findUnique({
-    where: { id },
-    select: { slug: true },
-  });
+    const prev = await prisma.article.findUnique({
+      where: { id },
+      select: { slug: true },
+    });
 
-  prevSlug = prev?.slug ?? null;
+    prevSlug = prev?.slug ?? null;
 
-  await prisma.article.update({
-    where: { id },
-    data: {
-      isPublished,
-      publishedAt: isPublished ? new Date() : null,
-    },
-  });
-} catch {
-  redirect("/admin/articles?msg=error");
-}
+    await prisma.article.update({
+      where: { id },
+      data: {
+        isPublished,
+        publishedAt: isPublished ? new Date() : null,
+      },
+    });
+  } catch {
+    redirect("/admin/articles?msg=error");
+  }
 
-revalidatePath("/articles");
-// if (prevSlug) revalidatePath(`/articles/${prevSlug}`);
-revalidatePath("/sitemap.xml");
+  revalidatePath("/articles");
+  // if (prevSlug) revalidatePath(`/articles/${prevSlug}`);
+  revalidatePath("/sitemap.xml");
 
-redirect(`/admin/articles?msg=${isPublished ? "published" : "draft"}`);
+  redirect(`/admin/articles?msg=${isPublished ? "published" : "draft"}`);
 }

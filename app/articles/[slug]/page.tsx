@@ -27,12 +27,21 @@ async function findPublishedArticleOrRedirect(slug: string) {
     select: {
       slug: true,
       title: true,
+      author: true,
       excerpt: true,
       contentMarkdown: true,
       coverImageBase64: true,
       publishedAt: true,
       updatedAt: true,
       coverImageAlt: true,
+      galleryImages: {
+        orderBy: { sortOrder: "asc" },
+        select: {
+          imageBase64: true,
+          imageAlt: true,
+          sortOrder: true,
+        },
+      },
     },
   });
 
@@ -47,6 +56,7 @@ async function findPublishedArticleOrRedirect(slug: string) {
         select: {
           slug: true,
           title: true,
+          author: true,
           excerpt: true,
           contentMarkdown: true,
           coverImageBase64: true,
@@ -54,6 +64,14 @@ async function findPublishedArticleOrRedirect(slug: string) {
           updatedAt: true,
           coverImageAlt: true,
           isPublished: true,
+          galleryImages: {
+            orderBy: { sortOrder: "asc" },
+            select: {
+              imageBase64: true,
+              imageAlt: true,
+              sortOrder: true,
+            },
+          },
         },
       },
     },
@@ -125,6 +143,10 @@ export default async function ArticlePage({
     description: article.excerpt,
     datePublished: article.publishedAt?.toISOString(),
     mainEntityOfPage: canonical,
+    author: {
+      "@type": "Person",
+      name: article.author,
+    },
   };
 
   return (
@@ -135,14 +157,14 @@ export default async function ArticlePage({
       />
 
       <div className="mb-6 text-start">
-         <Reveal>
-        <Link
-          href="/المقالات"
-          className="inline-flex items-center gap-2 rounded-full border border-[#d6e8e0] bg-white px-4 py-2 text-sm text-[#145c49] shadow-sm transition hover:bg-[#f2faf6] hover:border-[#bfd8ce]"
-        >
-          <span aria-hidden>←</span>
-          <span>العودة إلى المقالات</span>
-        </Link>
+        <Reveal>
+          <Link
+            href="/المقالات"
+            className="inline-flex items-center gap-2 rounded-full border border-[#d6e8e0] bg-white px-4 py-2 text-sm text-[#145c49] shadow-sm transition hover:bg-[#f2faf6] hover:border-[#bfd8ce]"
+          >
+            <span aria-hidden>←</span>
+            <span>العودة إلى المقالات</span>
+          </Link>
         </Reveal>
       </div>
 
@@ -173,9 +195,9 @@ export default async function ArticlePage({
 
         <div className="px-5 py-6 sm:px-8 sm:py-8 md:px-12 md:py-10">
           <div className="mx-auto max-w-4xl text-center">
-            <span className="inline-block rounded-full bg-[#e7f5ef] px-3 py-1 text-xs font-medium text-[#0f6b53] md:text-sm">
+            {/* <span className="inline-block rounded-full bg-[#e7f5ef] px-3 py-1 text-xs font-medium text-[#0f6b53] md:text-sm">
               المقالات
-            </span>
+            </span> */}
 
             <h1 className="mt-4 text-3xl font-bold leading-tight text-[#123b31] sm:text-4xl md:text-5xl">
               {article.title}
@@ -201,6 +223,67 @@ export default async function ArticlePage({
             >
               {article.contentMarkdown}
             </article>
+
+            {article.galleryImages?.length ? (
+              <section
+                aria-labelledby="article-gallery-title"
+                className="mx-auto mt-10 max-w-4xl border-t border-[#e7efeb] pt-8"
+              >
+                <div className="mx-auto max-w-3xl">
+                  <h2
+                    id="article-gallery-title"
+                    className="text-2xl font-bold text-[#123b31]"
+                  >
+                    صور من المقال
+                  </h2>
+                  {/* <p className="mt-2 text-sm leading-7 text-[#5f7a72]">
+                    صور إضافية مرتبطة بمحتوى المقال لتوضيح المعلومات بشكل أفضل.
+                  </p> */}
+                </div>
+
+                <div
+                  className={`mx-auto mt-6 ${
+                    article.galleryImages.length === 1
+                      ? "max-w-3xl"
+                      : "grid max-w-4xl gap-4 sm:grid-cols-2"
+                  }`}
+                >
+                  {article.galleryImages.map((img, index) => (
+                    <figure
+                      key={`${img.sortOrder}-${index}`}
+                      className="overflow-hidden rounded-3xl border border-[#dbece5] bg-white shadow-[0_8px_30px_rgba(0,0,0,0.05)]"
+                    >
+                      <div className="relative aspect-[4/3] bg-[#f4f8f6]">
+                        <SmartImage
+                          src={img.imageBase64}
+                          alt={
+                            img.imageAlt ||
+                            `${article.title} - صورة ${index + 1}`
+                          }
+                          sizes={
+                            article.galleryImages.length === 1
+                              ? "(max-width: 768px) 100vw, 900px"
+                              : "(max-width: 768px) 100vw, 50vw"
+                          }
+                          className="absolute inset-0 h-full w-full object-cover"
+                        />
+                      </div>
+
+                      {/* {article.galleryImages.length > 1 ? (
+                        <figcaption className="px-4 py-3 text-sm leading-6 text-[#4b635c]">
+                          صورة {index + 1}
+                        </figcaption>
+                      ) : null} */}
+                    </figure>
+                  ))}
+                </div>
+              </section>
+            ) : null}
+
+            <div className="mx-auto mt-8 max-w-3xl border-t border-[#e7efeb] pt-6 text-sm text-[#5f7a72]">
+              <span className="font-semibold text-[#123b31]">الكاتب:</span>{" "}
+              {article.author}
+            </div>
           </div>
         </div>
       </div>

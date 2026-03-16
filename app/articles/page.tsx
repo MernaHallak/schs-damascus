@@ -40,6 +40,7 @@ export default async function ArticlesPage({
     select: {
       slug: true,
       title: true,
+      author: true,
       excerpt: true,
       publishedAt: true,
       coverImageBase64: true,

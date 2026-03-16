@@ -8,6 +8,9 @@ type FormValues = {
   contentMarkdown: string;
   coverImageAlt: string;
   isPublished: boolean;
+  author: string;
+  galleryAltBase: string;
+clearGallery: boolean;
 };
 
 type State = {
@@ -23,6 +26,12 @@ type Initial = {
   isPublished?: boolean;
   coverImageBase64?: string;
   coverImageAlt?: string;
+  author?: string;
+  galleryImages?: {
+  imageBase64: string;
+  imageAlt?: string | null;
+  sortOrder: number;
+}[];
 };
 
 export default function ArticleForm({
@@ -35,9 +44,9 @@ export default function ArticleForm({
   action: (prevState: State, formData: FormData) => Promise<State>;
 }) {
   const initialState: State = {
-  error: undefined,
-  values: undefined,
-};
+    error: undefined,
+    values: undefined,
+  };
 
   const [state, formAction, pending] = useActionState<State, FormData>(
     action,
@@ -50,6 +59,9 @@ export default function ArticleForm({
     contentMarkdown: initial.contentMarkdown ?? "",
     coverImageAlt: initial.coverImageAlt ?? "",
     isPublished: initial.isPublished ?? false,
+    author: initial.author ?? "",
+    galleryAltBase: "",
+clearGallery: false,
   };
 
   const [title, setTitle] = useState(currentValues.title);
@@ -64,6 +76,11 @@ export default function ArticleForm({
 
   const [selectedCoverName, setSelectedCoverName] = useState("");
 
+  const [author, setAuthor] = useState(currentValues.author);
+  const [galleryAltBase, setGalleryAltBase] = useState(currentValues.galleryAltBase);
+const [clearGallery, setClearGallery] = useState(currentValues.clearGallery);
+const [selectedGalleryNames, setSelectedGalleryNames] = useState<string[]>([]);
+
   useEffect(() => {
     if (!state.values) return;
 
@@ -72,6 +89,9 @@ export default function ArticleForm({
     setContentMarkdown(state.values.contentMarkdown);
     setCoverImageAlt(state.values.coverImageAlt);
     setIsPublished(state.values.isPublished);
+    setAuthor(state.values.author);
+    setGalleryAltBase(state.values.galleryAltBase);
+setClearGallery(state.values.clearGallery);
   }, [state.values]);
 
   return (
@@ -94,12 +114,24 @@ export default function ArticleForm({
       </div>
 
       <div className="grid gap-2">
+        <label className="text-sm font-bold text-slate-900">الكاتب</label>
+        <input
+          name="author"
+          value={author}
+          onChange={(e) => setAuthor(e.target.value)}
+          className="w-full rounded-2xl border border-neutral-200 bg-white px-4 py-3 text-sm outline-none focus:ring-2 focus:ring-emerald-500/30"
+          placeholder="مثال: فريق العيادة التخصصية للسمع والنطق"
+          required
+        />
+      </div>
+
+      <div className="grid gap-2">
         <label className="text-sm font-bold text-slate-900">مقتطف</label>
         <textarea
           name="excerpt"
           // defaultValue={initial.excerpt ?? ""}
-           value={excerpt}
-  onChange={(e) => setExcerpt(e.target.value)}
+          value={excerpt}
+          onChange={(e) => setExcerpt(e.target.value)}
           rows={3}
           dir="auto"
           wrap="soft"
@@ -117,8 +149,8 @@ export default function ArticleForm({
         <textarea
           name="contentMarkdown"
           // defaultValue={initial.contentMarkdown ?? ""}
-           value={contentMarkdown}
-  onChange={(e) => setContentMarkdown(e.target.value)}
+          value={contentMarkdown}
+          onChange={(e) => setContentMarkdown(e.target.value)}
           rows={14}
           dir="auto"
           wrap="soft"
@@ -144,11 +176,6 @@ export default function ArticleForm({
             setSelectedCoverName(e.target.files?.[0]?.name || "");
           }}
         />
-
-        {/* <label
-          htmlFor="coverFile"
-          className="flex items-center gap-3 rounded-2xl border border-neutral-200 bg-white px-4 py-3 cursor-pointer transition hover:border-emerald-400"
-        > */}
         <label
           htmlFor="coverFile"
           className="flex items-center gap-3 rounded-2xl border border-neutral-200 bg-white px-4 py-3 cursor-pointer transition focus-within:ring-2 focus-within:ring-emerald-500/30 focus-within:border-emerald-500"
@@ -179,8 +206,8 @@ export default function ArticleForm({
           <input
             name="coverImageAlt"
             // defaultValue={initial.coverImageAlt ?? ""}
-             value={coverImageAlt}
-  onChange={(e) => setCoverImageAlt(e.target.value)}
+            value={coverImageAlt}
+            onChange={(e) => setCoverImageAlt(e.target.value)}
             className="w-full rounded-2xl border border-neutral-200 bg-white px-4 py-3 text-sm outline-none focus:ring-2 focus:ring-emerald-500/30"
             placeholder="مثال: أخصائي يجري فحص سمع لطفل داخل العيادة"
             required
@@ -192,13 +219,77 @@ export default function ArticleForm({
         </div>
       </div>
 
+<div className="grid gap-4 rounded-3xl border border-[#dbece5] bg-[#f8fcfa] p-4">
+  <div className="grid gap-2">
+    <label className="text-sm font-bold text-slate-900">
+      صور إضافية للمقال (اختياري)
+    </label>
+
+    <input
+      id="galleryFiles"
+      type="file"
+      name="galleryFiles"
+      accept="image/png,image/jpeg,image/webp"
+      multiple
+      className="sr-only"
+      onChange={(e) => {
+        const names = Array.from(e.target.files || []).map((file) => file.name);
+        setSelectedGalleryNames(names);
+        
+      }}
+    />
+
+    <label
+      htmlFor="galleryFiles"
+      className="flex cursor-pointer items-center gap-3 rounded-2xl border border-neutral-200 bg-white px-4 py-3"
+    >
+      <span className="rounded-xl bg-emerald-600 px-4 py-2 text-sm font-bold text-white">
+        اختيار صور إضافية
+      </span>
+
+      <p className="truncate text-sm text-slate-700">
+        {selectedGalleryNames.length
+          ? `${selectedGalleryNames.length} صورة مختارة`
+          : "يمكنك اختيار عدة صور للمقال"}
+      </p>
+    </label>
+  </div>
+
+  <div className="grid gap-2">
+    <label className="text-sm font-bold text-slate-900">
+      وصف عام للصور الإضافية (للـ alt)
+    </label>
+    <input
+      name="galleryAltBase"
+      value={galleryAltBase}
+      onChange={(e) => setGalleryAltBase(e.target.value)}
+      // className="w-full rounded-2xl border border-neutral-200 bg-white px-4 py-3 text-sm"
+       className="w-full rounded-2xl border border-neutral-200 bg-white px-4 py-3 text-sm outline-none focus:ring-2 focus:ring-emerald-500/30"
+      placeholder="مثال: صور توضيحية من جلسة تقييم داخل العيادة"
+    />
+  </div>
+
+  {initial.galleryImages?.length ? (
+    <label className="flex items-center gap-3 text-sm font-medium text-slate-800">
+      <input
+        name="clearGallery"
+        type="checkbox"
+        checked={clearGallery}
+        onChange={(e) => setClearGallery(e.target.checked)}
+        className="h-4 w-4 rounded border-neutral-300"
+      />
+      حذف الصور الإضافية الحالية
+    </label>
+  ) : null}
+</div>
+
       <label className="flex items-center gap-3 text-sm font-bold text-slate-900">
         <input
           name="isPublished"
           type="checkbox"
           // defaultChecked={Boolean(initial.isPublished)}
           checked={isPublished}
-  onChange={(e) => setIsPublished(e.target.checked)}
+          onChange={(e) => setIsPublished(e.target.checked)}
           className="h-4 w-4 rounded border-neutral-300"
         />
         نشر المقال

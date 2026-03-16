@@ -4,6 +4,7 @@ import SmartImage from "./SmartImage";
 export type ArticleCardData = {
   slug: string;
   title: string;
+  author: string;
   excerpt: string;
   publishedAt: Date | null;
   // coverImageUrl: string | null;  
@@ -42,6 +43,7 @@ export default function ArticleCard({ a }: { a: ArticleCardData }) {
 
       <div className="p-6">
         <div className="text-xs text-slate-500">{formatDate(a.publishedAt)}</div>
+          <div className="mt-1 text-xs text-slate-500">الكاتب: {a.author}</div>
         <h3 className="mt-1 text-base font-extrabold tracking-tight text-slate-900 break-words [overflow-wrap:anywhere]">
           {a.title}
         </h3>

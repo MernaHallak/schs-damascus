@@ -17,7 +17,19 @@ export default async function EditArticlePage({
   params: Promise<{ id: string }>;
 }) {
   const { id } = await params;
-  const article = await prisma.article.findUnique({ where: { id } });
+  const article = await prisma.article.findUnique({
+  where: { id },
+  include: {
+    galleryImages: {
+      orderBy: { sortOrder: "asc" },
+      select: {
+        imageBase64: true,
+        imageAlt: true,
+        sortOrder: true,
+      },
+    },
+  },
+});
   if (!article) notFound();
 
   return (
@@ -28,11 +40,13 @@ export default async function EditArticlePage({
   initial={{
     id: article.id,
     title: article.title,
+    author: article.author,
     excerpt: article.excerpt,
     contentMarkdown: article.contentMarkdown,
     isPublished: article.isPublished,
     coverImageBase64: article.coverImageBase64 ?? "",
     coverImageAlt: article.coverImageAlt ?? "",
+    galleryImages: article.galleryImages,
   }}
 />
     </div>

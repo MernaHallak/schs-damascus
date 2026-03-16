@@ -30,7 +30,7 @@ export default function HomePage() {
             priority
             className="object-cover"
           />
-          <div className="absolute inset-0 bg-gradient-to-l from-white/95 via-white/75 to-white/30" />
+          <div className="absolute inset-0 bg-gradient-to-l from-white/90 via-white/60 to-white/15" />
         </div>
 
         <div className="relative mx-auto w-full px-4 sm:px-6 lg:px-8 py-16 sm:py-20">
@@ -49,7 +49,7 @@ export default function HomePage() {
             </Reveal>
 
             <Reveal delay={0.1}>
-              <div >
+              <div>
                 {home.hero.list.map((item: string, idx: number) => (
                   <p
                     key={idx}
@@ -90,14 +90,20 @@ export default function HomePage() {
 
             <Reveal delay={0.2}>
               <div className="mt-8 grid gap-3 sm:grid-cols-2">
-                {home.servicesQuickList.slice(0, 5).map((t) => (
-                  <div
-                    key={t}
-                    className="rounded-2xl border border-neutral-200 bg-white/70 px-4 py-3 text-sm text-slate-700 shadow-sm"
-                  >
-                    {t}
-                  </div>
-                ))}
+                {services.cards.slice(0, 5).map((service) => {
+                  const serviceId = slugify(service.title);
+
+                  return (
+                    <Link
+                      key={service.title}
+                      href={`/الخدمات#${serviceId}`}
+                      aria-label={`الانتقال إلى خدمة ${service.title}`}
+                      className="rounded-2xl border border-neutral-200 bg-white/70 px-4 py-3 text-sm text-slate-700 shadow-sm transition hover:-translate-y-0.5 hover:border-emerald-200 hover:bg-white hover:shadow-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/20"
+                    >
+                      {service.title}
+                    </Link>
+                  );
+                })}
               </div>
             </Reveal>
           </div>
@@ -223,7 +229,7 @@ export default function HomePage() {
                   فريق الاختصاص
                 </h2>
                 <p className="mt-2 text-sm sm:text-base text-slate-600">
-                  أسماء الاختصاصيين قابلة للكبس لفتح واتساب مباشرة.
+                  اسم الاختصاصي يفتح واتساب مباشرة
                 </p>
               </div>
               <Link
@@ -234,18 +240,27 @@ export default function HomePage() {
               </Link>
             </div>
 
-            <div className="mt-6 flex flex-wrap gap-3">
+            <div className="mt-6 flex flex-wrap items-center justify-start gap-3">
               {home.specialists.map((s, idx) => (
                 <Reveal key={s.wa} delay={0.03 * idx}>
-                  <a
-                    href={`https://wa.me/${s.wa}?text=${encodeURIComponent("مرحباً، أريد حجز موعد.")}`}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    aria-label={`فتح واتساب: ${s.name}`}
-                    className="inline-flex items-center rounded-full bg-emerald-100 px-4 py-2 text-sm font-bold text-emerald-900 transition hover:bg-emerald-200 focus:outline-none focus:ring-2 focus:ring-emerald-500/30"
-                  >
-                    {s.name}
-                  </a>
+                  <div className="inline-flex max-w-full flex-wrap items-center justify-end gap-2 rounded-full bg-emerald-100 px-3 py-2 text-sm font-bold text-emerald-900 shadow-sm ring-1 ring-emerald-200">
+                    <a
+                      href={`https://wa.me/${s.wa}?text=${encodeURIComponent("مرحباً، أريد حجز موعد.")}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      aria-label={`فتح واتساب: ${s.name}`}
+                      className="rounded-md transition hover:text-emerald-700 focus:outline-none focus:ring-2 focus:ring-emerald-500/30"
+                    >
+                      {s.name}
+                    </a>
+
+                    <span
+                      dir="ltr"
+                      className="inline-flex whitespace-nowrap rounded-full bg-emerald-50 px-3 py-1 text-xs font-semibold text-emerald-900 ring-1 ring-emerald-200 tabular-nums"
+                    >
+                      {s.phone}
+                    </span>
+                  </div>
                 </Reveal>
               ))}
             </div>
